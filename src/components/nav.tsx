@@ -3,26 +3,26 @@ import Link from 'next/link'
 
 const Nav = () => {
   return (
-    <nav className="bg-gray-800 text-white p-4">
+    <nav className="bg-black text-white p-8">
       <div className="container mx-auto flex justify-between items-center">
         <div className="text-xl font-bold">
           <Link href="/">
-            Brand Logo
+           PHAROS
           </Link>
         </div>
         
         <div className="hidden md:flex space-x-6">
           <Link href="/" className="hover:text-gray-300 transition duration-300">
-            Home
+            CAP
           </Link>
           <Link href="/about" className="hover:text-gray-300 transition duration-300">
-            About
+            Documentation
           </Link>
           <Link href="/landing" className="hover:text-gray-300 transition duration-300">
-            Landing
+            Base
           </Link>
           <Link href="/contact" className="hover:text-gray-300 transition duration-300">
-            Contact
+            Ecosystem
           </Link>
         </div>
         
@@ -35,6 +35,7 @@ const Nav = () => {
           </button>
         </div>
       </div>
+      <hr className="border-t border-gray-700 my-2"/>
     </nav>
   )
 }
