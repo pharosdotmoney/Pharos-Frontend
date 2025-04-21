@@ -156,6 +156,44 @@ export default function LandingPage() {
           </div>
         </div>
       </div>
+
+      {/* Footer Section */}
+      <footer className="mt-20 border-t border-gray-800" style={{
+        backgroundColor: '#C6D130',
+        boxShadow: 'inset 0 10px 30px -10px rgba(0,0,0,0.3)'
+      }}>
+        <div className="container mx-auto px-4 py-12">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+            <div className="mb-6 md:mb-0">
+              <p className="text-lg text-black mb-2 font-medium">
+                Stablecoin protocol with credible financial guarantees
+              </p>
+              <p className="text-sm text-gray-700">
+                cap © 2025 All rights reserved.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-x-12 gap-y-4">
+              <Link href="/about" className="text-gray-800 hover:text-black font-medium transition duration-300">
+                WHAT IS CAP
+              </Link>
+              <Link href="/docs" className="text-gray-800 hover:text-black font-medium transition duration-300">
+                DOCUMENTATION
+              </Link>
+              <Link href="/knowledge" className="text-gray-800 hover:text-black font-medium transition duration-300">
+                KNOWLEDGE BASE
+              </Link>
+              <Link href="/ecosystem" className="text-gray-800 hover:text-black font-medium transition duration-300">
+                ECOSYSTEM
+              </Link>
+              <Link href="/media" className="text-gray-800 hover:text-black font-medium transition duration-300">
+                MEDIA KIT
+              </Link>
+            </div>
+          </div>
+          
+        </div>
+      </footer>
     </div>
   )
 }
