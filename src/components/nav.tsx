@@ -5,9 +5,9 @@ const Nav = () => {
   return (
     <nav className="bg-black text-white p-8">
       <div className="container mx-auto flex justify-between items-center">
-        <div className="text-3xl font-bold text-[#C6D130]">
+        <div className="text-xl font-bold text-[#C6D130]">
           <Link href="/">
-           PHAROS
+           PHAROSDOTMONEY
           </Link>
         </div>
         
