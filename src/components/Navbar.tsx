@@ -1,28 +1,41 @@
-import React from 'react'
-import Link from 'next/link'
+'use client';
 
-const Nav = () => {
+import React from 'react';
+import Link from 'next/link';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+
+const Navbar = () => {
   return (
     <nav className="bg-black text-white p-8">
       <div className="container mx-auto flex justify-between items-center">
         <div className="text-xl font-bold text-[#C6D130]">
           <Link href="/">
-           PHAROSDOTMONEY
+            PHAROSDOTMONEY
           </Link>
         </div>
         
+        <div className="flex items-center">
+          <ConnectButton />
+        </div>
+        
         <div className="hidden md:flex space-x-6">
-          <Link href="/" className="hover:text-gray-300 transition duration-300">
-            CAP
-          </Link>
-          <Link href="/about" className="hover:text-gray-300 transition duration-300">
-            Documentation
+          <Link href="/mint" className="hover:text-gray-300 transition duration-300">
+            mint
           </Link>
           <Link href="/landing" className="hover:text-gray-300 transition duration-300">
-            Base
+            landing
           </Link>
-          <Link href="/contact" className="hover:text-gray-300 transition duration-300">
-            Ecosystem
+          <Link href="/cap-admin" className="hover:text-gray-300 transition duration-300">
+            capadmin
+          </Link>
+          <Link href="/operator-screen" className="hover:text-gray-300 transition duration-300">
+            operaotrscreen
+          </Link>
+          <Link href="/operator-registration" className="hover:text-gray-300 transition duration-300">
+            operaotreg
+          </Link>
+          <Link href="/restaking-screen" className="hover:text-gray-300 transition duration-300">
+            restscreen
           </Link>
         </div>
         
@@ -37,7 +50,7 @@ const Nav = () => {
       </div>
       <hr className="border-t border-gray-700 my-2"/>
     </nav>
-  )
-}
+  );
+};
 
-export default Nav
+export default Navbar; 
