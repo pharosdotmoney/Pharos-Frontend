@@ -105,7 +105,7 @@ const OperatorRegistration = () => {
           
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1">
+              <label htmlFor="name" className="block text-sm font-medium text-[#C6D130] mb-1">
                 Operator Name
               </label>
               <input
@@ -115,7 +115,7 @@ const OperatorRegistration = () => {
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-2 bg-black border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                className="w-full px-3 py-2 bg-black border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#C6D130]"
                 placeholder="Enter your operator name"
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -124,7 +124,7 @@ const OperatorRegistration = () => {
             </div>
             
             <div className="mb-4">
-              <label htmlFor="operatorAddress" className="block text-sm font-medium text-gray-300 mb-1">
+              <label htmlFor="operatorAddress" className="block text-sm font-medium text-[#C6D130] mb-1">
                 Operator Address
               </label>
               <input
@@ -134,7 +134,7 @@ const OperatorRegistration = () => {
                 value={formData.operatorAddress}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-2 bg-black border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                className="w-full px-3 py-2 bg-black border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#C6D130]"
                 placeholder="0x..."
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -143,7 +143,7 @@ const OperatorRegistration = () => {
             </div>
             
             <div className="mb-6">
-              <label htmlFor="metadataURI" className="block text-sm font-medium text-gray-300 mb-1">
+              <label htmlFor="metadataURI" className="block text-sm font-medium text-[#C6D130] mb-1">
                 Metadata URI
               </label>
               <input
@@ -153,7 +153,7 @@ const OperatorRegistration = () => {
                 value={formData.metadataURI}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-2 bg-black border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                className="w-full px-3 py-2 bg-black border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#C6D130]"
                 placeholder="ipfs://... or https://..."
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -166,15 +166,15 @@ const OperatorRegistration = () => {
               disabled={isSubmitting}
               className={`w-full py-3 px-4 rounded-md text-white font-medium transition-colors ${
                 isSubmitting ? 'opacity-70' : ''
-              } bg-black border border-[#0ff] shadow-[0_0_15px_rgba(0,255,255,0.7)] hover:shadow-[0_0_20px_rgba(0,255,255,1)] hover:text-[#0ff]`}
+              } bg-black border border-[#C6D130] shadow-[0_0_15px_rgba(198,209,48,0.7)] hover:shadow-[0_0_20px_rgba(198,209,48,1)] hover:text-[#C6D130]`}
             >
               {isSubmitting ? 'Registering...' : 'Register as Operator'}
             </button>
           </form>
         </div>
         
-        <div className="bg-black border border-gray-800 p-4 rounded-lg backdrop-blur-sm bg-[radial-gradient(#333_1px,transparent_1px)] bg-[size:10px_10px]">
-          <h2 className="text-lg font-semibold mb-2 text-cyan-400">Operator Requirements</h2>
+        <div className="bg-black border border-gray-800 p-4 rounded-lg">
+          <h2 className="text-lg font-semibold mb-2 text-[#C6D130]">Operator Requirements</h2>
           <ul className="list-disc pl-5 space-y-1 text-gray-300">
             <li>Maintain high uptime and reliability</li>
             <li>Secure your private keys properly</li>
@@ -187,7 +187,7 @@ const OperatorRegistration = () => {
         <div className="mt-6 text-center">
           <button 
             onClick={() => router.push('/restaking-screen')}
-            className="text-[#0ff] hover:text-white font-medium transition-colors px-4 py-2 border border-[#0ff] rounded-md shadow-[0_0_10px_rgba(0,255,255,0.7)] hover:shadow-[0_0_20px_rgba(0,255,255,1)]"
+            className="text-[#C6D130] hover:text-white font-medium transition-colors px-4 py-2 border border-[#C6D130] rounded-md shadow-[0_0_10px_rgba(198,209,48,0.7)] hover:shadow-[0_0_20px_rgba(198,209,48,1)]"
           >
             Back to Restaking →
           </button>

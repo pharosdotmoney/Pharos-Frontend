@@ -143,16 +143,16 @@ const RestakingScreen = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="bg-black border border-gray-800 p-4 rounded-lg shadow-lg backdrop-blur-sm bg-[radial-gradient(#333_1px,transparent_1px)] bg-[size:10px_10px]">
             <h3 className="text-sm text-gray-400 mb-1">Your Balance</h3>
-            <p className="text-2xl font-bold text-blue-400">{balance} LST</p>
+            <p className="text-2xl font-bold text-[#C6D130]">{balance} LST</p>
           </div>
           
           <div className="bg-black border border-gray-800 p-4 rounded-lg shadow-lg backdrop-blur-sm bg-[radial-gradient(#333_1px,transparent_1px)] bg-[size:10px_10px]">
             <h3 className="text-sm text-gray-400 mb-1">Pending Rewards</h3>
-            <p className="text-2xl font-bold text-green-400">{pendingRewards} LST</p>
+            <p className="text-2xl font-bold text-[#0f0]">{pendingRewards} LST</p>
             <button 
               onClick={handleClaimRewards}
               disabled={isLoading || parseFloat(pendingRewards) <= 0}
-              className="mt-2 text-sm bg-black text-[#0ff] py-1 px-3 rounded border border-[#0ff] hover:text-white disabled:border-gray-700 disabled:text-gray-500 transition-colors shadow-[0_0_10px_rgba(0,255,255,0.7)] hover:shadow-[0_0_15px_rgba(0,255,255,1)]"
+              className="mt-2 text-sm bg-black text-[#C6D130] py-1 px-3 rounded border border-[#C6D130] hover:text-white disabled:border-gray-700 disabled:text-gray-500 transition-colors shadow-[0_0_10px_rgba(198,209,48,0.7)] hover:shadow-[0_0_15px_rgba(198,209,48,1)]"
             >
               {isLoading ? 'Processing...' : 'Claim'}
             </button>
@@ -160,7 +160,7 @@ const RestakingScreen = () => {
           
           <div className="bg-black border border-gray-800 p-4 rounded-lg shadow-lg backdrop-blur-sm bg-[radial-gradient(#333_1px,transparent_1px)] bg-[size:10px_10px]">
             <h3 className="text-sm text-gray-400 mb-1">Current APR</h3>
-            <p className="text-2xl font-bold text-purple-400">{apr}%</p>
+            <p className="text-2xl font-bold text-[#f0f]">{apr}%</p>
           </div>
         </div>
         
@@ -168,13 +168,13 @@ const RestakingScreen = () => {
         <div className="bg-black border border-gray-800 rounded-lg shadow-lg overflow-hidden backdrop-blur-sm bg-[radial-gradient(#333_1px,transparent_1px)] bg-[size:10px_10px]">
           <div className="flex border-b border-gray-800">
             <button 
-              className={`flex-1 py-3 font-medium transition-colors ${activeTab === 'stake' ? 'bg-blue-900 bg-opacity-30 text-blue-400' : 'text-gray-400 hover:text-gray-300'}`}
+              className={`flex-1 py-3 font-medium transition-colors ${activeTab === 'stake' ? 'bg-[rgba(198,209,48,0.2)] text-[#C6D130]' : 'text-gray-400 hover:text-gray-300'}`}
               onClick={() => setActiveTab('stake')}
             >
               Stake
             </button>
             <button 
-              className={`flex-1 py-3 font-medium transition-colors ${activeTab === 'unstake' ? 'bg-blue-900 bg-opacity-30 text-blue-400' : 'text-gray-400 hover:text-gray-300'}`}
+              className={`flex-1 py-3 font-medium transition-colors ${activeTab === 'unstake' ? 'bg-[rgba(198,209,48,0.2)] text-[#C6D130]' : 'text-gray-400 hover:text-gray-300'}`}
               onClick={() => setActiveTab('unstake')}
             >
               Unstake
@@ -183,7 +183,7 @@ const RestakingScreen = () => {
           
           <div className="p-6">
             <div className="mb-4">
-              <label htmlFor="amount" className="block text-sm font-medium text-gray-300 mb-1">
+              <label htmlFor="amount" className="block text-sm font-medium text-[#C6D130] mb-1">
                 Amount
               </label>
               <div className="flex items-center">
@@ -193,7 +193,7 @@ const RestakingScreen = () => {
                   value={amount}
                   onChange={handleAmountChange}
                   placeholder="0.00"
-                  className="flex-1 px-3 py-2 bg-black border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-3 py-2 bg-black border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#C6D130]"
                 />
                 <button 
                   onClick={handleMaxClick}
@@ -209,21 +209,21 @@ const RestakingScreen = () => {
               disabled={isLoading}
               className={`w-full py-3 px-4 rounded-md text-white font-medium transition-colors ${
                 isLoading ? 'opacity-70' : ''
-              } bg-black border border-[#0ff] shadow-[0_0_15px_rgba(0,255,255,0.7)] hover:shadow-[0_0_20px_rgba(0,255,255,1)] hover:text-[#0ff]`}
+              } bg-black border border-[#C6D130] shadow-[0_0_15px_rgba(198,209,48,0.7)] hover:shadow-[0_0_20px_rgba(198,209,48,1)] hover:text-[#C6D130]`}
             >
               {isLoading ? 'Processing...' : activeTab === 'stake' ? 'Stake Tokens' : 'Unstake Tokens'}
             </button>
           </div>
         </div>
         
-        {/* Additional Info */}
-        <div className="mt-8 bg-black border border-gray-800 p-4 rounded-lg backdrop-blur-sm bg-[radial-gradient(#333_1px,transparent_1px)] bg-[size:10px_10px]">
-          <h2 className="text-lg font-semibold mb-2 text-blue-400">About Restaking</h2>
+        {/* Additional Info - with plain background */}
+        <div className="mt-8 bg-black border border-gray-800 p-4 rounded-lg">
+          <h2 className="text-lg font-semibold mb-2 text-[#C6D130]">About Restaking</h2>
           <p className="text-gray-300 mb-2">
             Restaking allows you to earn rewards by providing security to the network. Your staked tokens help secure multiple blockchain protocols simultaneously.
           </p>
           <p className="text-gray-300">
-            The current APR is <span className="text-purple-400">{apr}%</span>, but this rate may vary based on network conditions and total staked amount.
+            The current APR is <span className="text-[#f0f]">{apr}%</span>, but this rate may vary based on network conditions and total staked amount.
           </p>
         </div>
         
@@ -231,7 +231,7 @@ const RestakingScreen = () => {
         <div className="mt-6 text-center">
           <button 
             onClick={() => router.push('/operator-screen')}
-            className="text-[#0ff] hover:text-white font-medium transition-colors px-4 py-2 border border-[#0ff] rounded-md shadow-[0_0_10px_rgba(0,255,255,0.7)] hover:shadow-[0_0_20px_rgba(0,255,255,1)]"
+            className="text-[#C6D130] hover:text-white font-medium transition-colors px-4 py-2 border border-[#C6D130] rounded-md shadow-[0_0_10px_rgba(198,209,48,0.7)] hover:shadow-[0_0_20px_rgba(198,209,48,1)]"
           >
             View Operators →
           </button>
