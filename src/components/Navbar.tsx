@@ -9,7 +9,7 @@ const Navbar = () => {
     <nav className="bg-black text-white p-8">
       <div className="container mx-auto flex justify-between items-center">
         <div className="text-xl font-bold text-[#C6D130]">
-          <Link href="/">
+          <Link href="/landing">
             PHAROSDOTMONEY
           </Link>
         </div>
@@ -21,6 +21,9 @@ const Navbar = () => {
         <div className="hidden md:flex space-x-6">
           <Link href="/mint" className="hover:text-gray-300 transition duration-300">
             mint
+          </Link>
+          <Link href="/rwa" className="hover:text-gray-300 transition duration-300">
+            rwa
           </Link>
           <Link href="/landing" className="hover:text-gray-300 transition duration-300">
             landing
