@@ -24,7 +24,7 @@ export default function MintPage() {
   const handleMint = (e: React.FormEvent) => {
     e.preventDefault()
     // This would connect to a wallet and execute the mint transaction
-    alert(`Minting ${receiveAmount} cUSD from ${depositAmount} USDC`)
+    alert(`Minting ${receiveAmount} PUSD from ${depositAmount} USDC`)
     // Reset form after submission
     setDepositAmount('')
     setReceiveAmount('')
@@ -41,10 +41,10 @@ export default function MintPage() {
               textShadow: '0.05em 0 0 rgba(255,0,0,0.75), -0.025em -0.05em 0 rgba(0,255,0,0.75), 0.025em 0.05em 0 rgba(0,0,255,0.75)',
               fontFamily: 'monospace'
             }}>
-              MINT cUSD
+              MINT PUSD
             </h1>
             <p className="text-xl text-gray-300">
-              Deposit USDC to mint cUSD stablecoins
+              Deposit USDC to mint PUSD stablecoins
             </p>
           </div>
           
@@ -114,14 +114,14 @@ export default function MintPage() {
                   />
                   <div className="flex items-center">
                     <div className="w-8 h-8 rounded-full bg-green-500 mr-2 flex items-center justify-center">
-                      <span className="text-xs font-bold">cUSD</span>
+                      <span className="text-xs font-bold">PUSD</span>
                     </div>
-                    <span className="font-medium">cUSD</span>
+                    <span className="font-medium">PUSD</span>
                   </div>
                 </div>
                 
                 <div className="text-right mt-2">
-                  <span className="text-sm text-gray-400">Balance: 0 cUSD</span>
+                  <span className="text-sm text-gray-400">Balance: 0 PUSD</span>
                 </div>
               </div>
               
@@ -129,7 +129,7 @@ export default function MintPage() {
               <div className="bg-gray-900 p-4 rounded-lg mb-8">
                 <div className="flex justify-between">
                   <span className="text-gray-300">Exchange Rate</span>
-                  <span className="font-medium">1 USDC = 1 cUSD</span>
+                  <span className="font-medium">1 USDC = 1 PUSD</span>
                 </div>
               </div>
               
@@ -138,19 +138,19 @@ export default function MintPage() {
                 type="submit"
                 className="w-full bg-[#C6D130] text-black py-4 rounded-lg font-bold text-lg hover:bg-opacity-90 transition duration-300"
               >
-                MINT cUSD
+                MINT PUSD
               </button>
             </form>
           </div>
           
           {/* Info Section */}
           <div className="mt-8 p-6 border border-gray-800 rounded-lg">
-            <h3 className="text-xl font-bold mb-4">About cUSD</h3>
+            <h3 className="text-xl font-bold mb-4">About PUSD</h3>
             <p className="text-gray-300 mb-4">
-              cUSD is a fully collateralized stablecoin backed by USDC. Each cUSD is backed 1:1 by USDC held in secure smart contracts.
+              PUSD is a fully collateralized stablecoin backed by USDC. Each PUSD is backed 1:1 by USDC held in secure smart contracts.
             </p>
             <p className="text-gray-300">
-              By minting cUSD, you can earn yield while maintaining the stability of a dollar-pegged asset.
+              By minting PUSD, you can earn yield while maintaining the stability of a dollar-pegged asset.
             </p>
           </div>
         </div>

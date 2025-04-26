@@ -12,11 +12,8 @@ import {
 } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
 import {
-  mainnet,
-  polygon,
-  optimism,
-  arbitrum,
-  base,
+ 
+  baseSepolia,
 } from 'wagmi/chains';
 import {
   QueryClientProvider,
@@ -29,7 +26,7 @@ const inter = Inter({ subsets: ['latin'] });
 const config = getDefaultConfig({
   appName: 'Pharos Money',
   projectId: 'YOUR_PROJECT_ID', // Replace with your actual project ID
-  chains: [mainnet, polygon, optimism, arbitrum, base],
+  chains: [baseSepolia],
   ssr: true,
 });
 

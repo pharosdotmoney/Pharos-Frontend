@@ -37,6 +37,9 @@ const Navbar = () => {
           <Link href="/restaking-screen" className="hover:text-gray-300 transition duration-300">
             restscreen
           </Link>
+          <Link href="/usdc" className="hover:text-gray-300 transition duration-300">
+            usdc
+          </Link>
         </div>
         
         <div className="md:hidden">

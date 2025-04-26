@@ -98,7 +98,7 @@ export default function OperatorScreen() {
                       <thead>
                         <tr className="text-left border-b border-gray-800">
                           <th className="pb-3 pr-4">Loan ID</th>
-                          <th className="pb-3 pr-4">Amount (cUSD)</th>
+                          <th className="pb-3 pr-4">Amount (PUSD)</th>
                           <th className="pb-3 pr-4">Collateral (USDC)</th>
                           <th className="pb-3 pr-4">APR (%)</th>
                           <th className="pb-3 pr-4">Status</th>
@@ -173,7 +173,7 @@ export default function OperatorScreen() {
               
               <form onSubmit={handleTakeLoan}>
                 <div className="mb-6">
-                  <label className="block text-gray-300 mb-2">Loan Amount (cUSD)</label>
+                  <label className="block text-gray-300 mb-2">Loan Amount (PUSD)</label>
                   <input
                     type="number"
                     value={loanAmount}
@@ -183,7 +183,7 @@ export default function OperatorScreen() {
                     min="1000"
                     required
                   />
-                  <p className="text-sm text-gray-400 mt-2">Minimum loan amount: 1,000 cUSD</p>
+                  <p className="text-sm text-gray-400 mt-2">Minimum loan amount: 1,000 PUSD</p>
                 </div>
                 
                 <div className="mb-6">
@@ -263,7 +263,7 @@ export default function OperatorScreen() {
                 {repayLoanId && (
                   <>
                     <div className="mb-6">
-                      <label className="block text-gray-300 mb-2">Repayment Amount (cUSD)</label>
+                      <label className="block text-gray-300 mb-2">Repayment Amount (PUSD)</label>
                       <input
                         type="number"
                         value={repayAmount}
