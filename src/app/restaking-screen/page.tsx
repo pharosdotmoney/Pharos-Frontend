@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAccount } from 'wagmi';
 
 const RestakingScreen = () => {
   const router = useRouter();
@@ -15,6 +16,8 @@ const RestakingScreen = () => {
   const [activeTab, setActiveTab] = useState('stake');
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
 
+  const { address, isConnected } = useAccount();
+  
   // Mock data - in a real app, this would come from blockchain
   useEffect(() => {
     // Simulate fetching data
@@ -27,7 +30,11 @@ const RestakingScreen = () => {
 
   // Handle amount input change
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAmount(e.target.value);
+    const value = e.target.value;
+    // Only allow numbers and decimals
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      setAmount(value);
+    }
   };
 
   // Handle max button click
@@ -141,12 +148,14 @@ const RestakingScreen = () => {
         
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-black border border-gray-800 p-4 rounded-lg shadow-lg backdrop-blur-sm bg-[radial-gradient(#333_1px,transparent_1px)] bg-[size:10px_10px]">
+          <div className="bg-black border border-gray-800 p-4 rounded-lg shadow-lg backdrop-blur-sm" 
+               style={{ backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px)', backgroundSize: '10px 10px' }}>
             <h3 className="text-sm text-gray-400 mb-1">Your Balance</h3>
             <p className="text-2xl font-bold text-[#C6D130]">{balance} LST</p>
           </div>
           
-          <div className="bg-black border border-gray-800 p-4 rounded-lg shadow-lg backdrop-blur-sm bg-[radial-gradient(#333_1px,transparent_1px)] bg-[size:10px_10px]">
+          <div className="bg-black border border-gray-800 p-4 rounded-lg shadow-lg backdrop-blur-sm" 
+               style={{ backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px)', backgroundSize: '10px 10px' }}>
             <h3 className="text-sm text-gray-400 mb-1">Pending Rewards</h3>
             <p className="text-2xl font-bold text-[#0f0]">{pendingRewards} LST</p>
             <button 
@@ -158,14 +167,16 @@ const RestakingScreen = () => {
             </button>
           </div>
           
-          <div className="bg-black border border-gray-800 p-4 rounded-lg shadow-lg backdrop-blur-sm bg-[radial-gradient(#333_1px,transparent_1px)] bg-[size:10px_10px]">
+          <div className="bg-black border border-gray-800 p-4 rounded-lg shadow-lg backdrop-blur-sm" 
+               style={{ backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px)', backgroundSize: '10px 10px' }}>
             <h3 className="text-sm text-gray-400 mb-1">Current APR</h3>
             <p className="text-2xl font-bold text-[#f0f]">{apr}%</p>
           </div>
         </div>
         
         {/* Action Tabs */}
-        <div className="bg-black border border-gray-800 rounded-lg shadow-lg overflow-hidden backdrop-blur-sm bg-[radial-gradient(#333_1px,transparent_1px)] bg-[size:10px_10px]">
+        <div className="bg-black border border-gray-800 rounded-lg shadow-lg overflow-hidden backdrop-blur-sm" 
+             style={{ backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px)', backgroundSize: '10px 10px' }}>
           <div className="flex border-b border-gray-800">
             <button 
               className={`flex-1 py-3 font-medium transition-colors ${activeTab === 'stake' ? 'bg-[rgba(198,209,48,0.2)] text-[#C6D130]' : 'text-gray-400 hover:text-gray-300'}`}

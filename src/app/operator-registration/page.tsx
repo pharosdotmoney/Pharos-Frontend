@@ -86,7 +86,8 @@ const OperatorRegistration = () => {
           OPERATOR REGISTRATION
         </h1>
         
-        <div className="bg-black border border-gray-800 p-6 rounded-lg shadow-lg mb-6 backdrop-blur-sm bg-[radial-gradient(#333_1px,transparent_1px)] bg-[size:10px_10px]">
+        <div className="bg-black border border-gray-800 p-6 rounded-lg shadow-lg mb-6 backdrop-blur-sm" 
+             style={{ backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px)', backgroundSize: '10px 10px' }}>
           <p className="mb-4 text-gray-300">
             Register as an operator in the restaking system to receive delegations from users.
           </p>

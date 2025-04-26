@@ -6,6 +6,7 @@ export default function StablecoinAnimation() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [particles, setParticles] = useState<any[]>([]);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [earthAngle, setEarthAngle] = useState(0);
   
   // Initialize canvas and particles
   useEffect(() => {
@@ -57,6 +58,9 @@ export default function StablecoinAnimation() {
     const animate = (timestamp: number) => {
       const deltaTime = timestamp - lastTime;
       lastTime = timestamp;
+      
+      // Update earth angle
+      setEarthAngle(prev => (prev + 0.005) % (Math.PI * 2));
       
       // Clear canvas
       ctx.clearRect(0, 0, dimensions.width, dimensions.height);
@@ -211,6 +215,89 @@ export default function StablecoinAnimation() {
         ctx.fillText(label, x, y);
       });
       
+      // Draw Earth-like globe
+      const earthRadius = 25;
+      const earthOrbitRadius = 200;
+      const earthX = centerX + Math.cos(earthAngle) * earthOrbitRadius;
+      const earthY = centerY + Math.sin(earthAngle) * earthOrbitRadius;
+      
+      // Draw orbit path
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, earthOrbitRadius, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      
+      // Draw Earth
+      const earthGradient = ctx.createRadialGradient(
+        earthX, earthY, 0,
+        earthX, earthY, earthRadius
+      );
+      earthGradient.addColorStop(0, 'rgba(70, 130, 180, 0.8)'); // SteelBlue
+      earthGradient.addColorStop(0.5, 'rgba(30, 144, 255, 0.6)'); // DodgerBlue
+      earthGradient.addColorStop(1, 'rgba(0, 0, 128, 0.4)'); // Navy
+      
+      ctx.beginPath();
+      ctx.arc(earthX, earthY, earthRadius, 0, Math.PI * 2);
+      ctx.fillStyle = earthGradient;
+      ctx.fill();
+      
+      // Draw Earth glow
+      const earthGlowGradient = ctx.createRadialGradient(
+        earthX, earthY, earthRadius,
+        earthX, earthY, earthRadius + 10
+      );
+      earthGlowGradient.addColorStop(0, 'rgba(70, 130, 180, 0.3)');
+      earthGlowGradient.addColorStop(1, 'rgba(70, 130, 180, 0)');
+      
+      ctx.beginPath();
+      ctx.arc(earthX, earthY, earthRadius + 10, 0, Math.PI * 2);
+      ctx.fillStyle = earthGlowGradient;
+      ctx.fill();
+      
+      // Draw continents (simplified)
+      ctx.fillStyle = 'rgba(34, 139, 34, 0.7)'; // ForestGreen
+      
+      // Draw a few random "continent" shapes
+      for (let i = 0; i < 5; i++) {
+        const continentAngle = (i / 5) * Math.PI * 2 + time * 0.1;
+        const continentX = earthX + Math.cos(continentAngle) * (earthRadius * 0.7);
+        const continentY = earthY + Math.sin(continentAngle) * (earthRadius * 0.7);
+        
+        ctx.beginPath();
+        ctx.ellipse(
+          continentX, 
+          continentY, 
+          earthRadius * 0.3, 
+          earthRadius * 0.2, 
+          continentAngle, 
+          0, 
+          Math.PI * 2
+        );
+        ctx.fill();
+      }
+      
+      // Draw connection line between Earth and central stablecoin
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.lineTo(earthX, earthY);
+      ctx.strokeStyle = 'rgba(198, 209, 48, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([5, 5]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      
+      // Draw small satellite around Earth
+      const satelliteAngle = time * 3;
+      const satelliteOrbitRadius = earthRadius * 1.5;
+      const satelliteX = earthX + Math.cos(satelliteAngle) * satelliteOrbitRadius;
+      const satelliteY = earthY + Math.sin(satelliteAngle) * satelliteOrbitRadius;
+      
+      ctx.beginPath();
+      ctx.arc(satelliteX, satelliteY, 3, 0, Math.PI * 2);
+      ctx.fillStyle = '#C6D130';
+      ctx.fill();
+      
       setParticles(updatedParticles);
       animationFrameId = requestAnimationFrame(animate);
     };
@@ -220,7 +307,7 @@ export default function StablecoinAnimation() {
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, [particles, dimensions]);
+  }, [particles, dimensions, earthAngle]);
   
   return (
     <div className="relative w-full h-full">
