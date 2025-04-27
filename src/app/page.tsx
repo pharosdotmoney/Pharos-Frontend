@@ -38,7 +38,7 @@ const HomePage = () => {
       </div>
     </div>
 
-    {/* Why Choose CAP Section */}
+    {/* Why Choose PHAROSDOTMONEY Section */}
     <div className="container mx-auto px-4 py-20 border-t border-gray-800">
       <div className="text-left mb-16">
         <h2 className="text-4xl font-bold mb-4 font-mono" style={{ 
@@ -46,9 +46,9 @@ const HomePage = () => {
           textShadow: '0.05em 0 0 rgba(255,0,0,0.75), -0.025em -0.05em 0 rgba(0,255,0,0.75), 0.025em 0.05em 0 rgba(0,0,255,0.75)',
           fontFamily: 'monospace'
         }}>
-          WHY CHOOSE CAP
+          WHY CHOOSE PHAROSDOTMONEY
         </h2>
-        <p className="text-xl text-gray-300 max-w-2xl">
+        <p className="text-lg text-gray-300 max-w-2xl">
           Earn yield safely while maintaining access to your funds.
         </p>
       </div>
@@ -92,7 +92,7 @@ const HomePage = () => {
       </div>
     </div>
 
-    {/* How CAP Works Section */}
+    {/* How PHAROSDOTMONEY Works Section */}
     <div className="container mx-auto px-4 py-20 border-t border-gray-800">
       <div className="text-left mb-16">
         <h2 className="text-4xl font-bold mb-4 font-mono" style={{ 
@@ -100,7 +100,7 @@ const HomePage = () => {
           textShadow: '0.05em 0 0 rgba(255,0,0,0.75), -0.025em -0.05em 0 rgba(0,255,0,0.75), 0.025em 0.05em 0 rgba(0,0,255,0.75)',
           fontFamily: 'monospace'
         }}>
-          HOW CAP WORKS
+          HOW PHAROSDOTMONEY WORKS
         </h2>
       </div>
 
@@ -166,28 +166,28 @@ const HomePage = () => {
       <div className="container mx-auto px-4 py-12">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div className="mb-6 md:mb-0">
-            <p className="text-lg text-black mb-2 font-medium">
+            <p className="text-sm text-black mb-2 font-medium">
               Stablecoin protocol with credible financial guarantees
             </p>
-            <p className="text-sm text-gray-700">
-              cap © 2025 All rights reserved.
+            <p className="text-xs text-gray-700">
+              PHAROSDOTMONEY © 2025 All rights reserved.
             </p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-x-12 gap-y-4">
-            <Link href="/about" className="text-gray-800 hover:text-black font-medium transition duration-300">
-              WHAT IS CAP
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-x-8 gap-y-3">
+            <Link href="/about" className="text-xs text-gray-800 hover:text-black font-medium transition duration-300">
+              WHAT IS PHAROSDOTMONEY
             </Link>
-            <Link href="/docs" className="text-gray-800 hover:text-black font-medium transition duration-300">
+            <Link href="/docs" className="text-xs text-gray-800 hover:text-black font-medium transition duration-300">
               DOCUMENTATION
             </Link>
-            <Link href="/knowledge" className="text-gray-800 hover:text-black font-medium transition duration-300">
+            <Link href="/knowledge" className="text-xs text-gray-800 hover:text-black font-medium transition duration-300">
               KNOWLEDGE BASE
             </Link>
-            <Link href="/ecosystem" className="text-gray-800 hover:text-black font-medium transition duration-300">
+            <Link href="/ecosystem" className="text-xs text-gray-800 hover:text-black font-medium transition duration-300">
               ECOSYSTEM
             </Link>
-            <Link href="/media" className="text-gray-800 hover:text-black font-medium transition duration-300">
+            <Link href="/media" className="text-xs text-gray-800 hover:text-black font-medium transition duration-300">
               MEDIA KIT
             </Link>
           </div>
