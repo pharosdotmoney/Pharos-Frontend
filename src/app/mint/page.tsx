@@ -1,160 +1,243 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { USDC_ABI , PUSDC_ABI} from '@/abi';
+import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
+import { parseUnits, formatUnits } from 'viem';
+import { getContractAddress } from '@/config';
 
-export default function MintPage() {
-  const [depositAmount, setDepositAmount] = useState('')
-  const [receiveAmount, setReceiveAmount] = useState('')
+const MintPage = () => {
+  const [amount, setAmount] = useState('')
+  const [usdcBalance, setUsdcBalance] = useState('0')
+  const [pusdBalance, setPusdBalance] = useState('0')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   
-  // Update receive amount when deposit amount changes (1:1 ratio for simplicity)
-  const handleDepositChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const { address, isConnected } = useAccount()
+  const publicClient = usePublicClient()
+  const { data: walletClient } = useWalletClient()
+  
+  const chainId = 84532 // Base Sepolia
+  const usdcAddress = getContractAddress('USDC', chainId)
+  const pusdAddress = getContractAddress('PUSDC', chainId)
+
+  // Fetch balances
+  const fetchBalances = async () => {
+    if (!address || !publicClient) return
+    
+    try {
+      // Fetch USDC balance
+      const usdcBalanceData = await publicClient.readContract({
+        address: usdcAddress,
+        abi: USDC_ABI[0],
+        functionName: 'balanceOf',
+        args: [address]
+      })
+      
+      setUsdcBalance(formatUnits(usdcBalanceData as bigint, 6)) // USDC has 6 decimals
+      
+      // Fetch PUSD balance
+      const pusdBalanceData = await publicClient.readContract({
+        address: pusdAddress,
+        abi: PUSDC_ABI[0],
+        functionName: 'balanceOf',
+        args: [address]
+      })
+      
+      setPusdBalance(formatUnits(pusdBalanceData as bigint, 18)) // PUSD has 18 decimals
+    } catch (err) {
+      console.error('Error fetching balances:', err)
+    }
+  }
+
+  // Fetch balances on mount and when address changes
+  useEffect(() => {
+    if (isConnected && address && publicClient) {
+      fetchBalances()
+    }
+  }, [address, isConnected, publicClient])
+
+  // Handle input change
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
-    setDepositAmount(value)
-    setReceiveAmount(value) // 1:1 exchange rate for simplicity
+    // Only allow numbers and decimals
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      setAmount(value)
+    }
   }
-  
-  const handleMaxClick = () => {
-    // This would normally get the user's USDC balance
-    const mockBalance = '1000'
-    setDepositAmount(mockBalance)
-    setReceiveAmount(mockBalance)
-  }
-  
-  const handleMint = (e: React.FormEvent) => {
-    e.preventDefault()
-    // This would connect to a wallet and execute the mint transaction
-    alert(`Minting ${receiveAmount} PUSD from ${depositAmount} USDC`)
-    // Reset form after submission
-    setDepositAmount('')
-    setReceiveAmount('')
+
+  // Handle approve and mint
+  const handleMint = async () => {
+    if (!amount || parseFloat(amount) <= 0) {
+      setError('Please enter a valid amount')
+      return
+    }
+    
+    if (!walletClient || !publicClient) {
+      setError('Wallet not connected properly')
+      return
+    }
+    
+    setLoading(true)
+    setError('')
+    setSuccess('')
+    
+    try {
+      // First approve USDC spending
+      const usdcAmount = parseUnits(amount, 6) // USDC has 6 decimals
+      
+      // Check if we have enough USDC
+      if (parseFloat(usdcBalance) < parseFloat(amount)) {
+        setError(`Insufficient USDC balance. You have ${usdcBalance} USDC.`)
+        setLoading(false)
+        return
+      }
+      
+      // Approve USDC
+      const { request: approveRequest } = await publicClient.simulateContract({
+        address: usdcAddress,
+        abi: USDC_ABI[0],
+        functionName: 'approve',
+        args: [pusdAddress, usdcAmount],
+        account: address
+      })
+      
+      const approveHash = await walletClient.writeContract(approveRequest)
+      await publicClient.waitForTransactionReceipt({ hash: approveHash })
+      
+      // Now call depositAndMint on PUSD contract
+      const { request: mintRequest } = await publicClient.simulateContract({
+        address: pusdAddress,
+        abi: PUSDC_ABI[0],
+        functionName: 'depositAndMint',
+        args: [usdcAmount],
+        account: address
+      })
+      
+      const mintHash = await walletClient.writeContract(mintRequest)
+      await publicClient.waitForTransactionReceipt({ hash: mintHash })
+      
+      // Update balances and reset form
+      fetchBalances()
+      setAmount('')
+      setSuccess(`Successfully minted PUSD!`)
+    } catch (err: any) {
+      console.error('Error minting PUSD:', err)
+      setError(err.message || 'Failed to mint PUSD. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pt-10">
-      <div className="container mx-auto px-4">
-        <div className="max-w-2xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4 font-mono" style={{ 
-              letterSpacing: '0.05em',
-              textShadow: '0.05em 0 0 rgba(255,0,0,0.75), -0.025em -0.05em 0 rgba(0,255,0,0.75), 0.025em 0.05em 0 rgba(0,0,255,0.75)',
-              fontFamily: 'monospace'
-            }}>
-              MINT PUSD
-            </h1>
-            <p className="text-xl text-gray-300">
-              Deposit USDC to mint PUSD stablecoins
+    <div className="min-h-screen bg-black text-white p-6">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-4xl font-bold mb-6 text-center font-mono" style={{ 
+          letterSpacing: '0.05em',
+          textShadow: '0.05em 0 0 rgba(255,0,0,0.75), -0.025em -0.05em 0 rgba(0,255,0,0.75), 0.025em 0.05em 0 rgba(0,0,255,0.75)',
+          fontFamily: 'monospace'
+        }}>
+          MINT PUSD
+        </h1>
+        
+        {!isConnected ? (
+          <div className="bg-black border border-gray-800 p-6 rounded-lg shadow-lg mb-6 backdrop-blur-sm" 
+               style={{ backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)', backgroundSize: '10px 10px' }}>
+            <p className="text-center text-gray-300">
+              Please connect your wallet to mint PUSD
             </p>
           </div>
-          
-          {/* Mint Card */}
-          <div className="bg-black p-8 rounded-lg border border-gray-800"
-               style={{ 
-                 backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)', 
-                 backgroundSize: '10px 10px' 
-               }}>
-            <form onSubmit={handleMint}>
-              {/* Deposit Section */}
-              <div className="mb-8">
-                <div className="flex justify-between items-center mb-2">
-                  <label className="text-gray-300">Deposit</label>
-                  <button 
-                    type="button" 
-                    onClick={handleMaxClick}
-                    className="text-sm text-[#C6D130] hover:text-white"
-                  >
-                    MAX
-                  </button>
-                </div>
-                
-                <div className="flex items-center p-4 bg-gray-900 rounded-lg">
-                  <input
-                    type="number"
-                    value={depositAmount}
-                    onChange={handleDepositChange}
-                    placeholder="0.0"
-                    className="flex-grow bg-transparent text-2xl outline-none"
-                    min="0"
-                    step="0.01"
-                    required
-                  />
-                  <div className="flex items-center">
-                    <div className="w-8 h-8 rounded-full bg-blue-500 mr-2 flex items-center justify-center">
-                      <span className="text-xs font-bold">USDC</span>
+        ) : (
+          <>
+            <div className="bg-black border border-gray-800 p-6 rounded-lg shadow-lg mb-6 backdrop-blur-sm" 
+                 style={{ backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)', backgroundSize: '10px 10px' }}>
+              <div className="mb-4">
+                <p className="text-gray-300 mb-2">
+                  Your USDC Balance: <span className="text-[#C6D130] font-bold">{usdcBalance} USDC</span>
+                </p>
+                <p className="text-gray-300 mb-4">
+                  Your PUSD Balance: <span className="text-[#C6D130] font-bold">{pusdBalance} PUSD</span>
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-6 mb-6">
+                <div>
+                  <label htmlFor="amount" className="block text-sm font-medium text-[#C6D130] mb-1">
+                    Deposit
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      id="amount"
+                      value={amount}
+                      onChange={handleAmountChange}
+                      placeholder="0.00"
+                      className="w-full px-3 py-2 bg-black border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#C6D130]"
+                      disabled={loading}
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <span className="text-gray-400">USDC</span>
                     </div>
-                    <span className="font-medium">USDC</span>
                   </div>
                 </div>
                 
-                <div className="text-right mt-2">
-                  <span className="text-sm text-gray-400">Balance: 1,000 USDC</span>
-                </div>
-              </div>
-              
-              {/* Arrow Down */}
-              <div className="flex justify-center mb-8">
-                <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                  </svg>
-                </div>
-              </div>
-              
-              {/* Receive Section */}
-              <div className="mb-8">
-                <label className="text-gray-300 mb-2 block">Receive</label>
-                <div className="flex items-center p-4 bg-gray-900 rounded-lg">
-                  <input
-                    type="number"
-                    value={receiveAmount}
-                    readOnly
-                    placeholder="0.0"
-                    className="flex-grow bg-transparent text-2xl outline-none"
-                  />
-                  <div className="flex items-center">
-                    <div className="w-8 h-8 rounded-full bg-green-500 mr-2 flex items-center justify-center">
-                      <span className="text-xs font-bold">PUSD</span>
+                <div>
+                  <label className="block text-sm font-medium text-[#C6D130] mb-1">
+                    Receive
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={amount || '0.0'}
+                      readOnly
+                      className="w-full px-3 py-2 bg-gray-800 bg-opacity-50 border border-gray-700 text-white rounded-md"
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <span className="text-gray-400">PUSD</span>
                     </div>
-                    <span className="font-medium">PUSD</span>
                   </div>
                 </div>
-                
-                <div className="text-right mt-2">
-                  <span className="text-sm text-gray-400">Balance: 0 PUSD</span>
-                </div>
               </div>
               
-              {/* Exchange Rate */}
-              <div className="bg-gray-900 p-4 rounded-lg mb-8">
-                <div className="flex justify-between">
-                  <span className="text-gray-300">Exchange Rate</span>
-                  <span className="font-medium">1 USDC = 1 PUSD</span>
-                </div>
-              </div>
-              
-              {/* Mint Button */}
               <button
-                type="submit"
-                className="w-full bg-[#C6D130] text-black py-4 rounded-lg font-bold text-lg hover:bg-opacity-90 transition duration-300"
+                onClick={handleMint}
+                disabled={loading || !amount}
+                className={`w-full py-3 px-4 rounded-md text-white font-medium transition-colors ${
+                  loading ? 'opacity-70' : ''
+                } bg-black border border-[#C6D130] shadow-[0_0_15px_rgba(198,209,48,0.7)] hover:shadow-[0_0_20px_rgba(198,209,48,1)] hover:text-[#C6D130]`}
               >
-                MINT PUSD
+                {loading ? 'Processing...' : 'Mint PUSD'}
               </button>
-            </form>
-          </div>
-          
-          {/* Info Section */}
-          <div className="mt-8 p-6 border border-gray-800 rounded-lg">
-            <h3 className="text-xl font-bold mb-4">About PUSD</h3>
-            <p className="text-gray-300 mb-4">
-              PUSD is a fully collateralized stablecoin backed by USDC. Each PUSD is backed 1:1 by USDC held in secure smart contracts.
-            </p>
-            <p className="text-gray-300">
-              By minting PUSD, you can earn yield while maintaining the stability of a dollar-pegged asset.
-            </p>
-          </div>
-        </div>
+              
+              {error && (
+                <p className="mt-2 text-red-400 text-sm">
+                  Error: {error}
+                </p>
+              )}
+              
+              {success && (
+                <p className="mt-2 text-green-400 text-sm">
+                  {success}
+                </p>
+              )}
+            </div>
+            
+            <div className="bg-black border border-gray-800 p-4 rounded-lg">
+              <h2 className="text-lg font-semibold mb-2 text-[#C6D130]">About PUSD</h2>
+              <p className="text-gray-300 mb-2">
+                PUSD is a yield-bearing stablecoin backed by USDC collateral.
+              </p>
+              <p className="text-gray-300">
+                When you mint PUSD, your USDC is deposited into the protocol and used to generate yield through secure lending markets.
+              </p>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
 }
+
+export default MintPage

@@ -18,7 +18,7 @@ const USDCMint = () => {
   const { data: walletClient } = useWalletClient();
   
   const chainId = 84532; // Base Sepolia
-  const contractAddress = '0xbF452C9D17763BEc4692bbC54F29a5Bc03Af6C3A';
+  const contractAddress = '0xf12F7584143D17169905D7954D3DEab8942a310d';
 
   // Fetch balance
   const fetchBalance = async () => {

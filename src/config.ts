@@ -32,8 +32,8 @@ export const contractAddresses = {
   baseSepolia: {
     operatorRegistry: '0x0000000000000000000000000000000000000000', // Replace with actual address
     restakingLST: '0x0000000000000000000000000000000000000000',    // Replace with actual address
-    USDC: '0xbF452C9D17763BEc4692bbC54F29a5Bc03Af6C3A', // Example address - replace with actual
-    PUSDC: '0x1e4a5963abfd975d8c9021ce480b42188849d41d', // Example address - replace with actual
+    USDC: '0xf12F7584143D17169905D7954D3DEab8942a310d', // Example address - replace with actual
+    PUSDC: '0x52d336d5fB92A28a95fE22A089eb4c99209263D6', // Example address - replace with actual
   },
 };
 
