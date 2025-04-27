@@ -10,8 +10,29 @@ const mockLoans = [
   { id: '3', amount: '100000', collateral: '150000', apr: '5.5', status: 'Overdue', dueDate: '2024-12-01' },
 ]
 
+// Mock data for RWA
+const rwaData = {
+  currentYield: '5.93',
+  baseYield: '3.50',
+  restaking: {
+    totalRestaked: '15,000',
+    loanTaken: '8,500',
+    loanAvailable: '6,500'
+  },
+  assets: [
+    { id: 1, name: 'US Treasury Bond', amount: '10,000', yield: '4.2%', value: '10,250' },
+    { id: 2, name: 'Corporate Bond ETF', amount: '5,000', yield: '5.8%', value: '5,120' },
+    { id: 3, name: 'Real Estate Fund', amount: '15,000', yield: '7.1%', value: '15,600' },
+  ],
+  opportunities: [
+    { name: 'US Treasury Bonds', description: 'Low risk government securities', yield: '4.2%' },
+    { name: 'Corporate Bond ETF', description: 'Diversified corporate debt', yield: '5.8%' },
+    { name: 'Real Estate Fund', description: 'Commercial property portfolio', yield: '7.1%' },
+  ]
+}
+
 export default function OperatorScreen() {
-  const [activeTab, setActiveTab] = useState('existing')
+  const [activeTab, setActiveTab] = useState('rwa')
   const [loanAmount, setLoanAmount] = useState('')
   const [collateralAmount, setCollateralAmount] = useState('')
   const [repayLoanId, setRepayLoanId] = useState('')
@@ -63,6 +84,12 @@ export default function OperatorScreen() {
           {/* Tabs */}
           <div className="flex border-b border-gray-800 mb-8">
             <button 
+              className={`px-6 py-3 font-medium ${activeTab === 'rwa' ? 'text-[#C6D130] border-b-2 border-[#C6D130]' : 'text-gray-400'}`}
+              onClick={() => setActiveTab('rwa')}
+            >
+              About RWA
+            </button>
+            <button 
               className={`px-6 py-3 font-medium ${activeTab === 'existing' ? 'text-[#C6D130] border-b-2 border-[#C6D130]' : 'text-gray-400'}`}
               onClick={() => setActiveTab('existing')}
             >
@@ -81,6 +108,122 @@ export default function OperatorScreen() {
               Repay Loan
             </button>
           </div>
+          
+          {/* RWA Tab */}
+          {activeTab === 'rwa' && (
+            <div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                {/* Current Yield Box */}
+                <div className="bg-black border border-gray-800 p-6 rounded-lg shadow-lg backdrop-blur-sm col-span-2" 
+                    style={{ backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)', backgroundSize: '10px 10px' }}>
+                  <h2 className="text-xl font-semibold mb-4 text-[#C6D130]">Current Yield</h2>
+                  <div className="flex items-end mb-6">
+                    <span className="text-5xl font-bold text-white">{rwaData.currentYield}%</span>
+                    <span className="text-gray-400 ml-2 mb-1">APY</span>
+                  </div>
+                  
+                  <div className="bg-gray-800 bg-opacity-50 p-4 rounded-lg">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-300">Base Yield</span>
+                      <span className="text-xl font-semibold text-[#C6D130]">{rwaData.baseYield}%</span>
+                    </div>
+                    <div className="mt-2 h-2 bg-gray-700 rounded-full overflow-hidden">
+                      <div className="h-full bg-[#C6D130]" style={{ width: `${(parseFloat(rwaData.baseYield) / parseFloat(rwaData.currentYield)) * 100}%` }}></div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Restaking Overview */}
+                <div className="bg-black border border-gray-800 p-6 rounded-lg shadow-lg backdrop-blur-sm" 
+                    style={{ backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)', backgroundSize: '10px 10px' }}>
+                  <h2 className="text-xl font-semibold mb-4 text-[#C6D130]">Restaking Overview</h2>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-gray-400 text-sm">Total Restaked</p>
+                      <p className="text-2xl font-bold">${rwaData.restaking.totalRestaked}</p>
+                      <div className="mt-1 h-1 bg-gray-700 rounded-full overflow-hidden">
+                        <div className="h-full bg-[#C6D130]" style={{ width: '100%' }}></div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <p className="text-gray-400 text-sm">Loan Taken</p>
+                      <p className="text-2xl font-bold">${rwaData.restaking.loanTaken}</p>
+                      <div className="mt-1 h-1 bg-gray-700 rounded-full overflow-hidden">
+                        <div className="h-full bg-purple-500" style={{ width: `${(parseFloat(rwaData.restaking.loanTaken.replace(/,/g, '')) / parseFloat(rwaData.restaking.totalRestaked.replace(/,/g, ''))) * 100}%` }}></div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <p className="text-gray-400 text-sm">Loan Available</p>
+                      <p className="text-2xl font-bold">${rwaData.restaking.loanAvailable}</p>
+                      <div className="mt-1 h-1 bg-gray-700 rounded-full overflow-hidden">
+                        <div className="h-full bg-blue-500" style={{ width: `${(parseFloat(rwaData.restaking.loanAvailable.replace(/,/g, '')) / parseFloat(rwaData.restaking.totalRestaked.replace(/,/g, ''))) * 100}%` }}></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Assets Section */}
+              <div className="bg-black border border-gray-800 p-6 rounded-lg shadow-lg backdrop-blur-sm mb-8" 
+                  style={{ backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)', backgroundSize: '10px 10px' }}>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-semibold text-[#C6D130]">Your Assets</h2>
+                </div>
+                
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="text-left border-b border-gray-800">
+                        <th className="pb-2">Asset</th>
+                        <th className="pb-2">Amount (USDC)</th>
+                        <th className="pb-2">Yield</th>
+                        <th className="pb-2">Current Value</th>
+                        <th className="pb-2">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rwaData.assets.map(asset => (
+                        <tr key={asset.id} className="border-b border-gray-800">
+                          <td className="py-3">{asset.name}</td>
+                          <td className="py-3">${asset.amount}</td>
+                          <td className="py-3">{asset.yield}</td>
+                          <td className="py-3">${asset.value}</td>
+                          <td className="py-3">
+                            <button className="text-[#C6D130] hover:underline">Details</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              
+              {/* Market Opportunities */}
+              <div className="bg-black border border-gray-800 p-6 rounded-lg shadow-lg backdrop-blur-sm" 
+                  style={{ backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)', backgroundSize: '10px 10px' }}>
+                <h2 className="text-xl font-semibold mb-4 text-[#C6D130]">Market Opportunities</h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {rwaData.opportunities.map((opportunity, index) => (
+                    <div key={index} className="bg-gray-800 bg-opacity-50 p-4 rounded-lg">
+                      <h3 className="font-semibold mb-2">{opportunity.name}</h3>
+                      <p className="text-gray-300 text-sm mb-2">{opportunity.description}</p>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-400">Yield</span>
+                        <span className="text-green-400 font-semibold">{opportunity.yield}</span>
+                      </div>
+                      <button className="mt-4 w-full py-2 bg-black text-[#C6D130] border border-[#C6D130] rounded hover:bg-[#C6D130] hover:text-black transition-colors">
+                        Invest
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
           
           {/* Existing Loans Tab */}
           {activeTab === 'existing' && (
@@ -240,21 +383,17 @@ export default function OperatorScreen() {
               
               <form onSubmit={handleRepayLoan}>
                 <div className="mb-6">
-                  <label className="block text-gray-300 mb-2">Loan ID</label>
+                  <label className="block text-gray-300 mb-2">Select Loan to Repay</label>
                   <select
                     value={repayLoanId}
-                    onChange={(e) => {
-                      setRepayLoanId(e.target.value);
-                      const loan = mockLoans.find(l => l.id === e.target.value);
-                      if (loan) setRepayAmount(loan.amount);
-                    }}
+                    onChange={(e) => setRepayLoanId(e.target.value)}
                     className="w-full p-4 bg-gray-900 rounded-lg text-white outline-none"
                     required
                   >
                     <option value="">Select a loan</option>
                     {mockLoans.map(loan => (
                       <option key={loan.id} value={loan.id}>
-                        Loan #{loan.id} - ${loan.amount}
+                        Loan #{loan.id} - ${loan.amount} (Due: {loan.dueDate})
                       </option>
                     ))}
                   </select>
@@ -268,23 +407,13 @@ export default function OperatorScreen() {
                         type="number"
                         value={repayAmount}
                         onChange={(e) => setRepayAmount(e.target.value)}
+                        placeholder="Enter repayment amount"
                         className="w-full p-4 bg-gray-900 rounded-lg text-white outline-none"
-                        min="0"
                         required
                       />
-                      <div className="flex justify-between mt-2">
-                        <p className="text-sm text-gray-400">Outstanding balance: ${repayAmount}</p>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const loan = mockLoans.find(l => l.id === repayLoanId);
-                            if (loan) setRepayAmount(loan.amount);
-                          }}
-                          className="text-sm text-[#C6D130] hover:underline"
-                        >
-                          Pay Full Amount
-                        </button>
-                      </div>
+                      <p className="text-sm text-gray-400 mt-2">
+                        Full repayment will release all collateral
+                      </p>
                     </div>
                     
                     <div className="mb-8 p-4 bg-gray-900 rounded-lg">

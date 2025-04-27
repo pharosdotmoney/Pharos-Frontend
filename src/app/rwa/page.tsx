@@ -15,6 +15,13 @@ const RWAPage = () => {
     { id: 3, name: 'Real Estate Fund', amount: '15,000', yield: '7.1%', value: '15,600' },
   ]);
   
+  // Restaking and loan data
+  const [restakingData, setRestakingData] = useState({
+    totalRestaked: '15,000',
+    loanTaken: '8,500',
+    loanAvailable: '6,500'
+  });
+  
   const [showAddAssetModal, setShowAddAssetModal] = useState(false);
   const [newAsset, setNewAsset] = useState({
     name: '',
@@ -113,29 +120,34 @@ const RWAPage = () => {
             </div>
           </div>
           
-          {/* Quick Stats */}
+          {/* Restaking Overview (replacing Portfolio Stats) */}
           <div className="bg-black border border-gray-800 p-6 rounded-lg shadow-lg backdrop-blur-sm" 
                style={{ backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)', backgroundSize: '10px 10px' }}>
-            <h2 className="text-xl font-semibold mb-4 text-[#C6D130]">Portfolio Stats</h2>
+            <h2 className="text-xl font-semibold mb-4 text-[#C6D130]">Restaking Overview</h2>
             
             <div className="space-y-4">
               <div>
-                <p className="text-gray-400 text-sm">Total Value</p>
-                <p className="text-2xl font-bold">
-                  ${assets.reduce((sum, asset) => sum + parseFloat(asset.value.replace(/,/g, '')), 0).toLocaleString()}
-                </p>
+                <p className="text-gray-400 text-sm">Total Restaked</p>
+                <p className="text-2xl font-bold">${restakingData.totalRestaked}</p>
+                <div className="mt-1 h-1 bg-gray-700 rounded-full overflow-hidden">
+                  <div className="h-full bg-[#C6D130]" style={{ width: '100%' }}></div>
+                </div>
               </div>
               
               <div>
-                <p className="text-gray-400 text-sm">Asset Count</p>
-                <p className="text-2xl font-bold">{assets.length}</p>
+                <p className="text-gray-400 text-sm">Loan Taken</p>
+                <p className="text-2xl font-bold">${restakingData.loanTaken}</p>
+                <div className="mt-1 h-1 bg-gray-700 rounded-full overflow-hidden">
+                  <div className="h-full bg-purple-500" style={{ width: `${(parseFloat(restakingData.loanTaken.replace(/,/g, '')) / parseFloat(restakingData.totalRestaked.replace(/,/g, ''))) * 100}%` }}></div>
+                </div>
               </div>
               
               <div>
-                <p className="text-gray-400 text-sm">Yield Premium</p>
-                <p className="text-2xl font-bold text-green-400">
-                  +{(parseFloat(calculateTotalYield()) - parseFloat(baseYield)).toFixed(2)}%
-                </p>
+                <p className="text-gray-400 text-sm">Loan Available</p>
+                <p className="text-2xl font-bold">${restakingData.loanAvailable}</p>
+                <div className="mt-1 h-1 bg-gray-700 rounded-full overflow-hidden">
+                  <div className="h-full bg-blue-500" style={{ width: `${(parseFloat(restakingData.loanAvailable.replace(/,/g, '')) / parseFloat(restakingData.totalRestaked.replace(/,/g, ''))) * 100}%` }}></div>
+                </div>
               </div>
             </div>
           </div>
