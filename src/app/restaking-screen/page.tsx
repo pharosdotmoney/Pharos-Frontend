@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 import { parseUnits, formatUnits } from 'viem';
 import LSTJson from '@/contracts/LST.sol/LST.json';
+import EigenJson from '@/contracts/Eigen.sol/Eigen.json';
 import ContractAddresses from '@/deployed-addresses.json';
 
 const RestakingScreen = () => {
@@ -14,8 +15,9 @@ const RestakingScreen = () => {
   const [balance, setBalance] = useState('0');
   const [amount, setAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('stake');
+  const [activeTab, setActiveTab] = useState('delegate');
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
+  const [delegatedAmount, setDelegatedAmount] = useState('0');
 
   const { address, isConnected } = useAccount();
   const publicClient = usePublicClient();
@@ -34,6 +36,21 @@ const RestakingScreen = () => {
       });
       
       setBalance(formatUnits(balanceData as bigint, 18));
+      
+      // Also fetch delegated amount
+      try {
+        const delegatedData = await publicClient.readContract({
+          address: ContractAddresses.Eigen as `0x${string}`,
+          abi: EigenJson.abi,
+          functionName: 'getDelegatedAmount',
+          args: [address]
+        });
+        
+        setDelegatedAmount(formatUnits(delegatedData as bigint, 18));
+      } catch (err) {
+        console.error('Error fetching delegated amount:', err);
+        // If this fails, we'll just show 0 delegated
+      }
     } catch (err) {
       console.error('Error fetching balance:', err);
     }
@@ -57,7 +74,11 @@ const RestakingScreen = () => {
 
   // Handle max button click
   const handleMaxClick = () => {
-    setAmount(balance);
+    if (activeTab === 'delegate') {
+      setAmount(balance);
+    } else {
+      setAmount(delegatedAmount);
+    }
   };
 
   // Show notification
@@ -68,8 +89,8 @@ const RestakingScreen = () => {
     }, 5000);
   };
 
-  // Handle stake action
-  const handleStake = async () => {
+  // Handle delegate action (addDelegation)
+  const handleDelegate = async () => {
     if (!amount || parseFloat(amount) <= 0) {
       showNotification('Please enter a valid amount', 'error');
       return;
@@ -82,12 +103,15 @@ const RestakingScreen = () => {
 
     setIsLoading(true);
     try {
-      // Call the stake function on the contract
+   
+      
       const { request } = await publicClient.simulateContract({
-        address: ContractAddresses.Operator as `0x${string}`,
-        abi: LSTJson.abi, // Replace with Operator ABI
-        functionName: 'stake',
-        args: [parseUnits(amount, 18)],
+        address: ContractAddresses.Eigen as `0x${string}`,
+        abi: EigenJson.abi,
+        functionName: 'addDelegation',
+        args: [
+          parseUnits(amount, 18), 
+        ],
         account: address
       });
       
@@ -97,18 +121,18 @@ const RestakingScreen = () => {
       // Update balance
       fetchBalance();
       
-      showNotification(`Successfully staked ${amount} LST`, 'success');
+      showNotification(`Successfully delegated ${amount} LST`, 'success');
       setAmount('');
     } catch (error: any) {
-      console.error('Staking error:', error);
-      showNotification(error.message || 'Failed to stake tokens', 'error');
+      console.error('Delegation error:', error);
+      showNotification(error.message || 'Failed to delegate tokens', 'error');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle unstake action
-  const handleUnstake = async () => {
+  // Handle undelegate action (removeDelegation)
+  const handleUndelegate = async () => {
     if (!amount || parseFloat(amount) <= 0) {
       showNotification('Please enter a valid amount', 'error');
       return;
@@ -121,12 +145,15 @@ const RestakingScreen = () => {
 
     setIsLoading(true);
     try {
-      // Call the unstake function on the contract
+      // Call removeDelegation with separate parameters
       const { request } = await publicClient.simulateContract({
-        address: ContractAddresses.Operator as `0x${string}`,
-        abi: LSTJson.abi, // Replace with Operator ABI
-        functionName: 'unstake',
-        args: [parseUnits(amount, 18)],
+        address: ContractAddresses.Eigen as `0x${string}`,
+        abi: EigenJson.abi,
+        functionName: 'removeDelegation',
+        args: [
+          ContractAddresses.LST as `0x${string}`, 
+          parseUnits(amount, 18)
+        ],
         account: address
       });
       
@@ -136,11 +163,11 @@ const RestakingScreen = () => {
       // Update balance
       fetchBalance();
       
-      showNotification(`Successfully unstaked ${amount} LST`, 'success');
+      showNotification(`Successfully undelegated ${amount} LST`, 'success');
       setAmount('');
     } catch (error: any) {
-      console.error('Unstaking error:', error);
-      showNotification(error.message || 'Failed to unstake tokens', 'error');
+      console.error('Undelegation error:', error);
+      showNotification(error.message || 'Failed to undelegate tokens', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -169,31 +196,35 @@ const RestakingScreen = () => {
           {/* Tabs */}
           <div className="flex mb-6 border-b border-gray-800">
             <button
-              onClick={() => setActiveTab('stake')}
-              className={`py-2 px-4 ${activeTab === 'stake' ? 'text-[#C6D130] border-b-2 border-[#C6D130]' : 'text-gray-400'}`}
+              onClick={() => setActiveTab('delegate')}
+              className={`py-2 px-4 ${activeTab === 'delegate' ? 'text-[#C6D130] border-b-2 border-[#C6D130]' : 'text-gray-400'}`}
             >
-              Stake
+              Delegate
             </button>
             <button
-              onClick={() => setActiveTab('unstake')}
-              className={`py-2 px-4 ${activeTab === 'unstake' ? 'text-[#C6D130] border-b-2 border-[#C6D130]' : 'text-gray-400'}`}
+              onClick={() => setActiveTab('undelegate')}
+              className={`py-2 px-4 ${activeTab === 'undelegate' ? 'text-[#C6D130] border-b-2 border-[#C6D130]' : 'text-gray-400'}`}
             >
-              Unstake
+              Undelegate
             </button>
           </div>
           
           {/* Balance Display */}
           <div className="mb-6 p-4 bg-gray-900 bg-opacity-50 rounded-lg">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center mb-3">
               <span className="text-gray-400">Your LST Balance</span>
               <span className="text-xl font-semibold">{balance} LST</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-400">Delegated LST</span>
+              <span className="text-xl font-semibold">{delegatedAmount} LST</span>
             </div>
           </div>
           
           {/* Input Form */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-[#C6D130] mb-1">
-              {activeTab === 'stake' ? 'Amount to Stake' : 'Amount to Unstake'}
+              {activeTab === 'delegate' ? 'Amount to Delegate' : 'Amount to Undelegate'}
             </label>
             <div className="relative">
               <input
@@ -216,13 +247,13 @@ const RestakingScreen = () => {
           {/* Action Button */}
           <div>
             <button
-              onClick={activeTab === 'stake' ? handleStake : handleUnstake}
+              onClick={activeTab === 'delegate' ? handleDelegate : handleUndelegate}
               disabled={isLoading}
               className={`w-full py-3 px-4 rounded-md text-white font-medium transition-colors ${
                 isLoading ? 'opacity-70' : ''
               } bg-black border border-[#C6D130] shadow-[0_0_15px_rgba(198,209,48,0.7)] hover:shadow-[0_0_20px_rgba(198,209,48,1)] hover:text-[#C6D130]`}
             >
-              {isLoading ? 'Processing...' : activeTab === 'stake' ? 'Stake Tokens' : 'Unstake Tokens'}
+              {isLoading ? 'Processing...' : activeTab === 'delegate' ? 'Delegate Tokens' : 'Undelegate Tokens'}
             </button>
           </div>
         </div>
@@ -231,13 +262,11 @@ const RestakingScreen = () => {
         <div className="mt-8 bg-black border border-gray-800 p-4 rounded-lg">
           <h2 className="text-lg font-semibold mb-2 text-[#C6D130]">About Restaking</h2>
           <p className="text-gray-300 mb-2">
-            Restaking allows you to earn rewards by providing security to the network. Your staked tokens help secure multiple blockchain protocols simultaneously.
+            Restaking allows you to earn rewards by providing security to the network. Your delegated tokens help secure multiple blockchain protocols simultaneously.
           </p>
-        </div>
-        
-        {/* Navigation */}
-        <div className="mt-6 text-center">
-       
+          <p className="text-gray-300">
+            When you delegate your LST tokens to an operator, they can use your stake to validate transactions across different networks, increasing your potential rewards.
+          </p>
         </div>
       </div>
     </div>
