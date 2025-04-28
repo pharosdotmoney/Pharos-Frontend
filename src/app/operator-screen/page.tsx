@@ -1,7 +1,13 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useAccount, usePublicClient, useWalletClient } from 'wagmi'
+import { parseUnits, formatUnits } from 'viem'
+import LSTJson from '@/contracts/LST.sol/LST.json'
+import USDCJson from '@/contracts/USDC.sol/USDC.json'
+import LoanManagerJson from '@/contracts/LoanManager.sol/LoanManager.json'
+import ContractAddresses from '@/deployed-addresses.json'
 
 // Mock data for existing loans
 const mockLoans = [
@@ -31,36 +37,210 @@ const rwaData = {
   ]
 }
 
+// Interface for loan data
+interface Loan {
+  id: string;
+  amount: string;
+  collateral: string;
+  apr: string;
+  status: string;
+  dueDate: string;
+}
+
 export default function OperatorScreen() {
   const [activeTab, setActiveTab] = useState('rwa')
   const [loanAmount, setLoanAmount] = useState('')
   const [collateralAmount, setCollateralAmount] = useState('')
   const [repayLoanId, setRepayLoanId] = useState('')
   const [repayAmount, setRepayAmount] = useState('')
+  const [mockLoans, setMockLoans] = useState<Loan[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [notification, setNotification] = useState({ show: false, message: '', type: '' })
+  const [lstBalance, setLstBalance] = useState('0')
+  const [usdcBalance, setUsdcBalance] = useState('0')
   
-  const handleTakeLoan = (e: React.FormEvent) => {
-    e.preventDefault()
-    alert(`Loan request submitted: $${loanAmount} with $${collateralAmount} collateral`)
-    setLoanAmount('')
-    setCollateralAmount('')
+  const { address, isConnected } = useAccount()
+  const publicClient = usePublicClient()
+  const { data: walletClient } = useWalletClient()
+  
+  // Fetch balances and active loans
+  useEffect(() => {
+    if (isConnected && address && publicClient) {
+      fetchBalances()
+      fetchActiveLoans()
+    }
+  }, [address, isConnected, publicClient])
+  
+  // Fetch LST and USDC balances
+  const fetchBalances = async () => {
+    if (!address || !publicClient) return
+    
+    try {
+      // Fetch LST balance
+      const lstBalanceData = await publicClient.readContract({
+        address: ContractAddresses.LST as `0x${string}`,
+        abi: LSTJson.abi,
+        functionName: 'balanceOf',
+        args: [address]
+      })
+      
+      setLstBalance(formatUnits(lstBalanceData as bigint, 18))
+      
+      // Fetch USDC balance
+      const usdcBalanceData = await publicClient.readContract({
+        address: ContractAddresses.USDC as `0x${string}`,
+        abi: USDCJson.abi,
+        functionName: 'balanceOf',
+        args: [address]
+      })
+      
+      setUsdcBalance(formatUnits(usdcBalanceData as bigint, 6))
+    } catch (err) {
+      console.error('Error fetching balances:', err)
+    }
   }
   
-  const handleRepayLoan = (e: React.FormEvent) => {
-    e.preventDefault()
-    alert(`Repayment of $${repayAmount} for loan #${repayLoanId} submitted`)
-    setRepayLoanId('')
-    setRepayAmount('')
+  // Fetch active loans from LoanManager contract
+  const fetchActiveLoans = async () => {
+    if (!address || !publicClient) return;
+    
+    try {
+      console.log("Fetching active loans for address:", address);
+      
+      // For testing purposes, add a mock loan to ensure we have data to display
+      // Remove this in production
+      const mockLoan = {
+        id: '1',
+        amount: '1000',
+        collateral: '1500',
+        apr: '5.00',
+        status: 'Active',
+        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()
+      };
+      
+      setMockLoans([mockLoan]);
+      console.log("Added mock loan for testing:", mockLoan);
+      
+      
+    } catch (err) {
+      console.error('Error fetching active loans:', err);
+    }
+  };
+  
+  // Show notification
+  const showNotification = (message: string, type: string) => {
+    setNotification({ show: true, message, type })
+    setTimeout(() => {
+      setNotification({ show: false, message: '', type: '' })
+    }, 5000)
   }
   
+  // Handle loan amount change and calculate required collateral
+  const handleLoanAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setLoanAmount(value)
+    setCollateralAmount(calculateCollateral(value))
+  }
+  
+  // Calculate required collateral (LST) based on loan amount (USDC)
   const calculateCollateral = (amount: string) => {
     const loanValue = parseFloat(amount) || 0
     return (loanValue * 1.5).toFixed(2)
   }
   
-  const handleLoanAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setLoanAmount(value)
-    setCollateralAmount(calculateCollateral(value))
+  // Handle take loan action
+  const handleTakeLoan = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!loanAmount || parseFloat(loanAmount) <= 0) {
+      showNotification('Please enter a valid loan amount', 'error')
+      return
+    }
+    
+    if (!walletClient || !publicClient) {
+      showNotification('Wallet not connected properly', 'error')
+      return
+    }
+    
+    setIsLoading(true)
+    try {
+
+      
+      // Now call createLoan on LoanManager contract
+      const { request } = await publicClient.simulateContract({
+        address: ContractAddresses.LoanManager as `0x${string}`,
+        abi: LoanManagerJson.abi,
+        functionName: 'createLoan',
+        args: [parseUnits(loanAmount, 6)],
+        account: address
+      })
+      
+      const hash = await walletClient.writeContract(request)
+      await publicClient.waitForTransactionReceipt({ hash })
+      
+      // Update balances and loans
+      fetchBalances()
+      fetchActiveLoans()
+      
+      showNotification(`Successfully created loan for ${loanAmount} USDC`, 'success')
+      setLoanAmount('')
+      setCollateralAmount('')
+    } catch (error: any) {
+      console.error('Error creating loan:', error)
+      showNotification(error.message || 'Failed to create loan', 'error')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  
+  // Handle repay loan action
+  const handleRepayLoan = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!repayLoanId) {
+      showNotification('Please select a loan to repay', 'error')
+      return
+    }
+    
+    if (!repayAmount || parseFloat(repayAmount) <= 0) {
+      showNotification('Please enter a valid repayment amount', 'error')
+      return
+    }
+    
+    if (!walletClient || !publicClient) {
+      showNotification('Wallet not connected properly', 'error')
+      return
+    }
+    
+    setIsLoading(true)
+    try {
+      
+      
+      // Now call repayLoan on LoanManager contract
+      const { request } = await publicClient.simulateContract({
+        address: ContractAddresses.LoanManager as `0x${string}`,
+        abi: LoanManagerJson.abi,
+        functionName: 'repayLoan',
+        args: [],
+        account: address
+      })
+      
+      const hash = await walletClient.writeContract(request)
+      await publicClient.waitForTransactionReceipt({ hash })
+      
+      // Update balances and loans
+      fetchBalances()
+      fetchActiveLoans()
+      
+      showNotification(`Successfully repaid ${repayAmount} USDC for loan #${repayLoanId}`, 'success')
+      setRepayLoanId('')
+      setRepayAmount('')
+    } catch (error: any) {
+      console.error('Error repaying loan:', error)
+      showNotification(error.message || 'Failed to repay loan', 'error')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -80,6 +260,13 @@ export default function OperatorScreen() {
               Manage your loans and collateral
             </p>
           </div>
+          
+          {/* Notification */}
+          {notification.show && (
+            <div className={`mb-6 p-3 rounded-md ${notification.type === 'error' ? 'bg-red-900 bg-opacity-50 text-red-200' : 'bg-green-900 bg-opacity-50 text-green-200'}`}>
+              {notification.message}
+            </div>
+          )}
           
           {/* Tabs */}
           <div className="flex border-b border-gray-800 mb-8">
@@ -241,8 +428,8 @@ export default function OperatorScreen() {
                       <thead>
                         <tr className="text-left border-b border-gray-800">
                           <th className="pb-3 pr-4">Loan ID</th>
-                          <th className="pb-3 pr-4">Amount (PUSD)</th>
-                          <th className="pb-3 pr-4">Collateral (USDC)</th>
+                          <th className="pb-3 pr-4">Amount (USDC)</th>
+                          <th className="pb-3 pr-4">Delegation (LST)</th>
                           <th className="pb-3 pr-4">APR (%)</th>
                           <th className="pb-3 pr-4">Status</th>
                           <th className="pb-3 pr-4">Due Date</th>
@@ -289,12 +476,12 @@ export default function OperatorScreen() {
               <div className="bg-gray-900 p-6 rounded-lg">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h3 className="text-xl font-bold">Total Borrowed</h3>
-                    <p className="text-2xl text-[#C6D130] mt-2">$175,000</p>
+                    <h3 className="text-xl font-bold">Your LST Balance</h3>
+                    <p className="text-2xl text-[#C6D130] mt-2">{lstBalance} LST</p>
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold">Total Collateral</h3>
-                    <p className="text-2xl text-[#C6D130] mt-2">$265,000</p>
+                    <h3 className="text-xl font-bold">Your USDC Balance</h3>
+                    <p className="text-2xl text-[#C6D130] mt-2">{usdcBalance} USDC</p>
                   </div>
                   <div>
                     <h3 className="text-xl font-bold">Health Factor</h3>
@@ -316,21 +503,19 @@ export default function OperatorScreen() {
               
               <form onSubmit={handleTakeLoan}>
                 <div className="mb-6">
-                  <label className="block text-gray-300 mb-2">Loan Amount (PUSD)</label>
+                  <label className="block text-gray-300 mb-2">Loan Amount (USDC)</label>
                   <input
                     type="number"
                     value={loanAmount}
                     onChange={handleLoanAmountChange}
                     placeholder="Enter loan amount"
                     className="w-full p-4 bg-gray-900 rounded-lg text-white outline-none"
-                    min="1000"
                     required
                   />
-                  <p className="text-sm text-gray-400 mt-2">Minimum loan amount: 1,000 PUSD</p>
                 </div>
                 
                 <div className="mb-6">
-                  <label className="block text-gray-300 mb-2">Required Collateral (USDC)</label>
+                  <label className="block text-gray-300 mb-2">Required Delegation (LST)</label>
                   <input
                     type="number"
                     value={collateralAmount}
@@ -364,9 +549,10 @@ export default function OperatorScreen() {
                 
                 <button
                   type="submit"
-                  className="w-full bg-[#C6D130] text-black py-4 rounded-lg font-bold text-lg hover:bg-opacity-90 transition duration-300"
+                  disabled={isLoading}
+                  className={`w-full bg-[#C6D130] text-black py-4 rounded-lg font-bold text-lg hover:bg-opacity-90 transition duration-300 ${isLoading ? 'opacity-70' : ''}`}
                 >
-                  TAKE LOAN
+                  {isLoading ? 'PROCESSING...' : 'TAKE LOAN'}
                 </button>
               </form>
             </div>
@@ -381,75 +567,91 @@ export default function OperatorScreen() {
               }}>
               <h2 className="text-2xl font-bold mb-6">Repay Loan</h2>
               
-              <form onSubmit={handleRepayLoan}>
-                <div className="mb-6">
-                  <label className="block text-gray-300 mb-2">Select Loan to Repay</label>
-                  <select
-                    value={repayLoanId}
-                    onChange={(e) => setRepayLoanId(e.target.value)}
-                    className="w-full p-4 bg-gray-900 rounded-lg text-white outline-none"
-                    required
-                  >
-                    <option value="">Select a loan</option>
-                    {mockLoans.map(loan => (
-                      <option key={loan.id} value={loan.id}>
-                        Loan #{loan.id} - ${loan.amount} (Due: {loan.dueDate})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
-                {repayLoanId && (
-                  <>
-                    <div className="mb-6">
-                      <label className="block text-gray-300 mb-2">Repayment Amount (PUSD)</label>
-                      <input
-                        type="number"
-                        value={repayAmount}
-                        onChange={(e) => setRepayAmount(e.target.value)}
-                        placeholder="Enter repayment amount"
-                        className="w-full p-4 bg-gray-900 rounded-lg text-white outline-none"
-                        required
-                      />
-                      <p className="text-sm text-gray-400 mt-2">
-                        Full repayment will release all collateral
-                      </p>
-                    </div>
-                    
-                    <div className="mb-8 p-4 bg-gray-900 rounded-lg">
-                      <h3 className="font-bold mb-2">Loan Details</h3>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-gray-400">Principal</p>
-                          <p className="font-medium">${repayAmount}</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-400">Interest Due</p>
-                          <p className="font-medium">$250</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-400">Collateral to Release</p>
-                          <p className="font-medium">${parseFloat(repayAmount) * 1.5}</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-400">Due Date</p>
-                          <p className="font-medium">
-                            {mockLoans.find(l => l.id === repayLoanId)?.dueDate || 'N/A'}
-                          </p>
+              {mockLoans && mockLoans.length > 0 ? (
+                <form onSubmit={handleRepayLoan}>
+                  <div className="mb-6">
+                    <label className="block text-gray-300 mb-2">Select Loan to Repay</label>
+                    <select
+                      value={repayLoanId}
+                      onChange={(e) => setRepayLoanId(e.target.value)}
+                      className="w-full p-4 bg-gray-900 rounded-lg text-white outline-none"
+                      required
+                    >
+                      <option value="">Select a loan</option>
+                      {mockLoans.map(loan => (
+                        <option key={loan.id} value={loan.id}>
+                          Loan #{loan.id} - {loan.amount} USDC (Due: {loan.dueDate})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  {repayLoanId && (
+                    <>
+                      <div className="mb-6">
+                        <label className="block text-gray-300 mb-2">Repayment Amount (USDC)</label>
+                        <input
+                          type="number"
+                          value={repayAmount}
+                          onChange={(e) => setRepayAmount(e.target.value)}
+                          placeholder="Enter repayment amount"
+                          className="w-full p-4 bg-gray-900 rounded-lg text-white outline-none"
+                          required
+                        />
+                        <p className="text-sm text-gray-400 mt-2">
+                          Full repayment will release all delegation
+                        </p>
+                      </div>
+                      
+                      <div className="mb-8 p-4 bg-gray-900 rounded-lg">
+                        <h3 className="font-bold mb-2">Loan Details</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                          {mockLoans.find(l => l.id === repayLoanId) && (
+                            <>
+                              <div>
+                                <p className="text-gray-400">Principal</p>
+                                <p className="font-medium">{mockLoans.find(l => l.id === repayLoanId)?.amount} USDC</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-400">Interest Due</p>
+                                <p className="font-medium">{(parseFloat(mockLoans.find(l => l.id === repayLoanId)?.amount || '0') * 0.05).toFixed(2)} USDC</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-400">Delegation to Release</p>
+                                <p className="font-medium">{mockLoans.find(l => l.id === repayLoanId)?.collateral} LST</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-400">Due Date</p>
+                                <p className="font-medium">
+                                  {mockLoans.find(l => l.id === repayLoanId)?.dueDate || 'N/A'}
+                                </p>
+                              </div>
+                            </>
+                          )}
                         </div>
                       </div>
-                    </div>
-                  </>
-                )}
-                
-                <button
-                  type="submit"
-                  className="w-full bg-[#C6D130] text-black py-4 rounded-lg font-bold text-lg hover:bg-opacity-90 transition duration-300"
-                  disabled={!repayLoanId}
-                >
-                  REPAY LOAN
-                </button>
-              </form>
+                    </>
+                  )}
+                  
+                  <button
+                    type="submit"
+                    className="w-full bg-[#C6D130] text-black py-4 rounded-lg font-bold text-lg hover:bg-opacity-90 transition duration-300"
+                    disabled={!repayLoanId || isLoading}
+                  >
+                    {isLoading ? 'PROCESSING...' : 'REPAY LOAN'}
+                  </button>
+                </form>
+              ) : (
+                <div className="text-center py-8 text-gray-400">
+                  <p className="mb-4">No active loans found to repay.</p>
+                  <button
+                    onClick={() => setActiveTab('take')}
+                    className="px-6 py-2 bg-[#C6D130] text-black rounded-lg font-medium hover:bg-opacity-90 transition duration-300"
+                  >
+                    Take a New Loan
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
