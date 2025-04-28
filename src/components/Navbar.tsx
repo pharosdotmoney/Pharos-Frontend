@@ -10,33 +10,33 @@ const Navbar = () => {
       <div className="container mx-auto flex justify-between items-center">
         <div className="text-xl font-bold text-[#C6D130]">
           <Link href="/">
-            PHAROSDOTMONEY
+            PHAROS.MONEY
+          </Link>
+        </div>
+        
+        <div className="hidden md:flex space-x-8">
+          <Link href="/mint" className="font-medium tracking-wide hover:text-[#C6D130] transition duration-300">
+            MINT
+          </Link>
+          <Link href="/cap-admin" className="font-medium tracking-wide hover:text-[#C6D130] transition duration-300">
+            CAP ADMIN
+          </Link>
+          <Link href="/operator-screen" className="font-medium tracking-wide hover:text-[#C6D130] transition duration-300">
+            OPERATOR
+          </Link>
+          <Link href="/restaking-screen" className="font-medium tracking-wide hover:text-[#C6D130] transition duration-300">
+            RESTAKING
+          </Link>
+          <Link href="/usdc" className="font-medium tracking-wide hover:text-[#C6D130] transition duration-300">
+            USDC
+          </Link>
+          <Link href="/lst" className="font-medium tracking-wide hover:text-[#C6D130] transition duration-300">
+            LST
           </Link>
         </div>
         
         <div className="flex items-center">
           <ConnectButton />
-        </div>
-        
-        <div className="hidden md:flex space-x-6">
-          <Link href="/mint" className="hover:text-gray-300 transition duration-300">
-            mint
-          </Link>
-          <Link href="/cap-admin" className="hover:text-gray-300 transition duration-300">
-            capadmin
-          </Link>
-          <Link href="/operator-screen" className="hover:text-gray-300 transition duration-300">
-            operaotrscreen
-          </Link>
-          <Link href="/restaking-screen" className="hover:text-gray-300 transition duration-300">
-            restscreen
-          </Link>
-          <Link href="/usdc" className="hover:text-gray-300 transition duration-300">
-            usdc
-          </Link>
-          <Link href="/lst" className="hover:text-gray-300 transition duration-300">
-            lst
-          </Link>
         </div>
         
         <div className="md:hidden">

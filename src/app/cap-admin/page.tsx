@@ -5,7 +5,7 @@ import React, { useState } from 'react'
 // Mock data for operators
 const mockOperators = [
   { id: '1', name: 'Operator Alpha', address: '0x1a2b...3c4d', collateral: '500000', status: 'Active', loans: 3 },
-  { id: '2', name: 'Operator Beta', address: '0x5e6f...7g8h', collateral: '750000', status: 'Active', loans: 5 },
+  { id: '2', name: 'Operator Beta', address: '0x5e6f...7g8h', collateral: '750000', status: 'Probation', loans: 5 },
   { id: '3', name: 'Operator Gamma', address: '0x9i0j...1k2l', collateral: '250000', status: 'Probation', loans: 1 },
 ]
 
@@ -15,9 +15,6 @@ export default function CapAdminScreen() {
   const [slashOperatorId, setSlashOperatorId] = useState('')
   const [slashAmount, setSlashAmount] = useState('')
   const [slashReason, setSlashReason] = useState('')
-  const [newOperatorName, setNewOperatorName] = useState('')
-  const [newOperatorAddress, setNewOperatorAddress] = useState('')
-  const [newOperatorCollateral, setNewOperatorCollateral] = useState('')
   
   const handleBaseRateChange = (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,14 +27,6 @@ export default function CapAdminScreen() {
     setSlashOperatorId('')
     setSlashAmount('')
     setSlashReason('')
-  }
-  
-  const handleOnboardOperator = (e: React.FormEvent) => {
-    e.preventDefault()
-    alert(`New operator onboarded: ${newOperatorName} (${newOperatorAddress}) with $${newOperatorCollateral} collateral`)
-    setNewOperatorName('')
-    setNewOperatorAddress('')
-    setNewOperatorCollateral('')
   }
 
   return (
@@ -65,7 +54,7 @@ export default function CapAdminScreen() {
             </div>
           </div>
           
-          {/* Tabs */}
+          {/* Tabs - Removed the onboard tab */}
           <div className="flex border-b border-gray-800 mb-8">
             <button 
               className={`px-6 py-3 font-medium ${activeTab === 'operators' ? 'text-[#C6D130] border-b-2 border-[#C6D130]' : 'text-gray-400'}`}
@@ -84,12 +73,6 @@ export default function CapAdminScreen() {
               onClick={() => setActiveTab('slash')}
             >
               Slash Operator
-            </button>
-            <button 
-              className={`px-6 py-3 font-medium ${activeTab === 'onboard' ? 'text-[#C6D130] border-b-2 border-[#C6D130]' : 'text-gray-400'}`}
-              onClick={() => setActiveTab('onboard')}
-            >
-              Onboard Operator
             </button>
           </div>
           
@@ -147,27 +130,6 @@ export default function CapAdminScreen() {
                   </tbody>
                 </table>
               </div>
-              
-              <div className="mt-8 p-4 bg-gray-900 rounded-lg">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="text-lg font-bold">Total Operators</h3>
-                    <p className="text-xl text-[#C6D130] mt-1">{mockOperators.length}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold">Total Collateral</h3>
-                    <p className="text-xl text-[#C6D130] mt-1">
-                      ${mockOperators.reduce((sum, op) => sum + parseInt(op.collateral), 0).toLocaleString()}
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold">Total Loans</h3>
-                    <p className="text-xl text-[#C6D130] mt-1">
-                      {mockOperators.reduce((sum, op) => sum + op.loans, 0)}
-                    </p>
-                  </div>
-                </div>
-              </div>
             </div>
           )}
           
@@ -178,36 +140,31 @@ export default function CapAdminScreen() {
                 backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)', 
                 backgroundSize: '10px 10px' 
               }}>
-              <h2 className="text-2xl font-bold mb-6">Set Base Interest Rate</h2>
+              <h2 className="text-2xl font-bold mb-6">Update Base Rate</h2>
               
               <form onSubmit={handleBaseRateChange}>
-                <div className="mb-8">
-                  <label className="block text-gray-300 mb-2">Base Interest Rate (APR %)</label>
-                  <div className="flex items-center">
-                    <input
-                      type="number"
-                      value={baseRate}
-                      onChange={(e) => setBaseRate(e.target.value)}
-                      placeholder="Enter base rate"
-                      className="flex-grow p-4 bg-gray-900 rounded-l-lg text-white outline-none"
-                      min="0"
-                      max="100"
-                      step="0.1"
-                      required
-                    />
-                    <div className="bg-gray-800 p-4 rounded-r-lg">
-                      <span className="text-xl font-bold">%</span>
-                    </div>
-                  </div>
+                <div className="mb-6">
+                  <label className="block text-gray-300 mb-2">Base Interest Rate (%)</label>
+                  <input
+                    type="number"
+                    value={baseRate}
+                    onChange={(e) => setBaseRate(e.target.value)}
+                    placeholder="Enter base rate"
+                    className="w-full p-4 bg-gray-900 rounded-lg text-white outline-none"
+                    step="0.1"
+                    min="0"
+                    max="100"
+                    required
+                  />
                   <p className="text-sm text-gray-400 mt-2">Current base rate: 5.0%</p>
                 </div>
                 
                 <div className="mb-8 p-4 bg-gray-900 rounded-lg">
-                  <h3 className="font-bold mb-2">Rate Impact Analysis</h3>
+                  <h3 className="font-bold mb-2">Rate Impact</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-gray-400">Operator Margin</p>
-                      <p className="font-medium">+2.0%</p>
+                      <p className="font-medium">+2.0% (fixed)</p>
                     </div>
                     <div>
                       <p className="text-gray-400">Effective Borrower Rate</p>
@@ -215,11 +172,11 @@ export default function CapAdminScreen() {
                     </div>
                     <div>
                       <p className="text-gray-400">Protocol Fee</p>
-                      <p className="font-medium">0.5%</p>
+                      <p className="font-medium">0.5% (fixed)</p>
                     </div>
                     <div>
-                      <p className="text-gray-400">Yield to Stablecoin Holders</p>
-                      <p className="font-medium">{(parseFloat(baseRate) * 0.8).toFixed(1)}%</p>
+                      <p className="text-gray-400">Stablecoin Holder Yield</p>
+                      <p className="font-medium">{(parseFloat(baseRate) - 0.5).toFixed(1)}%</p>
                     </div>
                   </div>
                 </div>
@@ -319,88 +276,6 @@ export default function CapAdminScreen() {
                   disabled={!slashOperatorId || !slashAmount || !slashReason}
                 >
                   CONFIRM SLASH
-                </button>
-              </form>
-            </div>
-          )}
-          
-          {/* Onboard Operator Tab */}
-          {activeTab === 'onboard' && (
-            <div className="bg-black p-8 rounded-lg border border-gray-800"
-              style={{ 
-                backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)', 
-                backgroundSize: '10px 10px' 
-              }}>
-              <h2 className="text-2xl font-bold mb-6">Onboard New Operator</h2>
-              
-              <form onSubmit={handleOnboardOperator}>
-                <div className="mb-6">
-                  <label className="block text-gray-300 mb-2">Operator Name</label>
-                  <input
-                    type="text"
-                    value={newOperatorName}
-                    onChange={(e) => setNewOperatorName(e.target.value)}
-                    placeholder="Enter operator name"
-                    className="w-full p-4 bg-gray-900 rounded-lg text-white outline-none"
-                    required
-                  />
-                </div>
-                
-                <div className="mb-6">
-                  <label className="block text-gray-300 mb-2">Wallet Address</label>
-                  <input
-                    type="text"
-                    value={newOperatorAddress}
-                    onChange={(e) => setNewOperatorAddress(e.target.value)}
-                    placeholder="0x..."
-                    className="w-full p-4 bg-gray-900 rounded-lg text-white outline-none"
-                    pattern="0x[a-fA-F0-9]{40}"
-                    required
-                  />
-                  <p className="text-sm text-gray-400 mt-2">Enter a valid Ethereum address</p>
-                </div>
-                
-                <div className="mb-6">
-                  <label className="block text-gray-300 mb-2">Required Collateral (USDC)</label>
-                  <input
-                    type="number"
-                    value={newOperatorCollateral}
-                    onChange={(e) => setNewOperatorCollateral(e.target.value)}
-                    placeholder="Enter required collateral"
-                    className="w-full p-4 bg-gray-900 rounded-lg text-white outline-none"
-                    min="100000"
-                    required
-                  />
-                  <p className="text-sm text-gray-400 mt-2">Minimum required: $100,000 USDC</p>
-                </div>
-                
-                <div className="mb-8 p-4 bg-gray-900 rounded-lg">
-                  <h3 className="font-bold mb-2">Operator Parameters</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-gray-400">Initial Status</p>
-                      <p className="font-medium">Probation (30 days)</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-400">Loan Limit</p>
-                      <p className="font-medium">3x Collateral</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-400">Margin</p>
-                      <p className="font-medium">2.0% above base rate</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-400">Liquidation Threshold</p>
-                      <p className="font-medium">110% collateralization</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <button
-                  type="submit"
-                  className="w-full bg-[#C6D130] text-black py-4 rounded-lg font-bold text-lg hover:bg-opacity-90 transition duration-300"
-                >
-                  ONBOARD OPERATOR
                 </button>
               </form>
             </div>
