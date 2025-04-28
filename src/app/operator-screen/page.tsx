@@ -251,6 +251,39 @@ export default function OperatorScreen() {
     }
   };
 
+  // Add this function to handle minting USDC to the operator
+  const handleMintUSDC = async () => {
+    if (!walletClient || !publicClient || !address) {
+      showNotification('Wallet not connected properly', 'error');
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      // Call mint on USDC contract instead of mintToOperator
+      const { request } = await publicClient.simulateContract({
+        address: ContractAddresses.USDC as `0x${string}`,
+        abi: USDCJson.abi,
+        functionName: 'mint',
+        args: [parseUnits('10', 6)], // Mint 10 USDC
+        account: address
+      });
+      
+      const hash = await walletClient.writeContract(request);
+      await publicClient.waitForTransactionReceipt({ hash });
+      
+      // Update balances
+      fetchBalances();
+      
+      showNotification('Successfully minted USDC to operator', 'success');
+    } catch (error: any) {
+      console.error('Error minting USDC:', error);
+      showNotification(error.message || 'Failed to mint USDC', 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black text-white pt-10 pb-20">
       <div className="container mx-auto px-4">
@@ -549,7 +582,19 @@ export default function OperatorScreen() {
                 backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)', 
                 backgroundSize: '10px 10px' 
               }}>
-              <h2 className="text-2xl font-bold mb-6">Repay Loan</h2>
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold">Repay Loan</h2>
+                  <p className="text-gray-400 mt-1">Your USDC Balance: <span className="text-white font-medium">{usdcBalance} USDC</span></p>
+                </div>
+                <button
+                  onClick={handleMintUSDC}
+                  disabled={isLoading}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Mint USDC
+                </button>
+              </div>
               
               {loanDetails && !loanDetails.isRepaid ? (
                 <form onSubmit={handleRepayLoan}>
