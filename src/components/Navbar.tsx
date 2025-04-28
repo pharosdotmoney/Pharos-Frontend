@@ -28,14 +28,14 @@ const Navbar = () => {
           <Link href="/operator-screen" className="hover:text-gray-300 transition duration-300">
             operaotrscreen
           </Link>
-          <Link href="/operator-registration" className="hover:text-gray-300 transition duration-300">
-            operaotreg
-          </Link>
           <Link href="/restaking-screen" className="hover:text-gray-300 transition duration-300">
             restscreen
           </Link>
           <Link href="/usdc" className="hover:text-gray-300 transition duration-300">
             usdc
+          </Link>
+          <Link href="/lst" className="hover:text-gray-300 transition duration-300">
+            lst
           </Link>
         </div>
         

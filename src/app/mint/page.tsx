@@ -2,10 +2,13 @@
 
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { USDC_ABI , PUSDC_ABI} from '@/abi';
+// import { USDC_ABI , PUSDC_ABI} from '@/abi';
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 import { parseUnits, formatUnits } from 'viem';
 import { getContractAddress } from '@/config';
+import USDCJson from '@/contracts/USDC.sol/USDC.json'
+import PUSDJson from '@/contracts/PUSD.sol/PUSD.json'
+import ContractAddresses from '@/deployed-addresses.json'
 
 const MintPage = () => {
   const [amount, setAmount] = useState('')
@@ -19,9 +22,9 @@ const MintPage = () => {
   const publicClient = usePublicClient()
   const { data: walletClient } = useWalletClient()
   
-  const chainId = 84532 // Base Sepolia
-  const usdcAddress = getContractAddress('USDC', chainId)
-  const pusdAddress = getContractAddress('PUSDC', chainId)
+  // const chainId = 84532 // Base Sepolia
+  // const usdcAddress = getContractAddress('USDC', chainId)
+  // const pusdAddress = getContractAddress('PUSDC', chainId)
 
   // Fetch balances
   const fetchBalances = async () => {
@@ -30,8 +33,8 @@ const MintPage = () => {
     try {
       // Fetch USDC balance
       const usdcBalanceData = await publicClient.readContract({
-        address: usdcAddress,
-        abi: USDC_ABI[0],
+        address: ContractAddresses.USDC as `0x${string}`,
+        abi: USDCJson.abi,
         functionName: 'balanceOf',
         args: [address]
       })
@@ -40,13 +43,13 @@ const MintPage = () => {
       
       // Fetch PUSD balance
       const pusdBalanceData = await publicClient.readContract({
-        address: pusdAddress,
-        abi: PUSDC_ABI[0],
+        address: ContractAddresses.PUSDC as `0x${string}`,
+            abi: PUSDJson.abi,
         functionName: 'balanceOf',
         args: [address]
       })
       
-      setPusdBalance(formatUnits(pusdBalanceData as bigint, 18)) // PUSD has 18 decimals
+      setPusdBalance(formatUnits(pusdBalanceData as bigint, 6)) // PUSD has 18 decimals
     } catch (err) {
       console.error('Error fetching balances:', err)
     }
@@ -97,10 +100,10 @@ const MintPage = () => {
       
       // Approve USDC
       const { request: approveRequest } = await publicClient.simulateContract({
-        address: usdcAddress,
-        abi: USDC_ABI[0],
+        address: ContractAddresses.USDC as `0x${string}`,
+        abi: USDCJson.abi,
         functionName: 'approve',
-        args: [pusdAddress, usdcAmount],
+        args: [ContractAddresses.PUSDC as `0x${string}`, usdcAmount],
         account: address
       })
       
@@ -109,8 +112,8 @@ const MintPage = () => {
       
       // Now call depositAndMint on PUSD contract
       const { request: mintRequest } = await publicClient.simulateContract({
-        address: pusdAddress,
-        abi: PUSDC_ABI[0],
+        address: ContractAddresses.PUSDC as `0x${string}`,
+        abi: PUSDJson.abi,
         functionName: 'depositAndMint',
         args: [usdcAmount],
         account: address

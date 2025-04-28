@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAccount } from 'wagmi';
+import OperatorJson from '@/contracts/Operator.sol/Operator.json'
+import EigenJson from '@/contracts/Eigen.sol/Eigen.json'
 
 const RestakingScreen = () => {
   const router = useRouter();

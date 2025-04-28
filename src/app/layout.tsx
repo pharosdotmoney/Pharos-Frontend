@@ -14,6 +14,7 @@ import { WagmiProvider } from 'wagmi';
 import {
  
   baseSepolia,
+  hardhat,
 } from 'wagmi/chains';
 import {
   QueryClientProvider,
@@ -26,7 +27,7 @@ const inter = Inter({ subsets: ['latin'] });
 const config = getDefaultConfig({
   appName: 'Pharos Money',
   projectId: 'YOUR_PROJECT_ID', // Replace with your actual project ID
-  chains: [baseSepolia],
+  chains: [baseSepolia , hardhat],
   ssr: true,
 });
 
