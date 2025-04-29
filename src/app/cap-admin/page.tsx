@@ -1,32 +1,76 @@
 'use client'
 
-import React, { useState } from 'react'
-
-// Mock data for operators
-const mockOperators = [
-  { id: '1', name: 'Operator Alpha', address: '0x1a2b...3c4d', collateral: '500000', status: 'Active', loans: 3 },
-  { id: '2', name: 'Operator Beta', address: '0x5e6f...7g8h', collateral: '750000', status: 'Probation', loans: 5 },
-  { id: '3', name: 'Operator Gamma', address: '0x9i0j...1k2l', collateral: '250000', status: 'Probation', loans: 1 },
-]
+import React, { useState, useEffect } from 'react'
+import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
+import { parseUnits, formatUnits } from 'viem';
+import LoanManagerJson from '@/contracts/LoanManager.sol/LoanManager.json';
+import ContractAddresses from '@/deployed-addresses.json';
 
 export default function CapAdminScreen() {
   const [activeTab, setActiveTab] = useState('operators')
   const [baseRate, setBaseRate] = useState('5.0')
-  const [slashOperatorId, setSlashOperatorId] = useState('')
   const [slashAmount, setSlashAmount] = useState('')
   const [slashReason, setSlashReason] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [notification, setNotification] = useState({ show: false, message: '', type: '' })
+  
+  // Add Wagmi hooks
+  const { address } = useAccount();
+  const publicClient = usePublicClient();
+  const { data: walletClient } = useWalletClient();
+  
+  // Show notification function
+  const showNotification = (message: string, type: string) => {
+    setNotification({ show: true, message, type });
+    setTimeout(() => {
+      setNotification({ show: false, message: '', type: '' });
+    }, 5000);
+  };
   
   const handleBaseRateChange = (e: React.FormEvent) => {
     e.preventDefault()
     alert(`Base rate updated to ${baseRate}%`)
   }
   
-  const handleSlashOperator = (e: React.FormEvent) => {
+  // Update the slash operator function to call the contract
+  const handleSlashOperator = async (e: React.FormEvent) => {
     e.preventDefault()
-    alert(`Operator #${slashOperatorId} slashed for $${slashAmount}. Reason: ${slashReason}`)
-    setSlashOperatorId('')
-    setSlashAmount('')
-    setSlashReason('')
+    
+    if (!slashAmount || !slashReason) {
+      showNotification('Please fill in all fields', 'error');
+      return;
+    }
+    
+    if (!walletClient || !publicClient || !address) {
+      showNotification('Wallet not connected properly', 'error');
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      // Call slashLoan on LoanManager contract with the amount parameter
+      const { request } = await publicClient.simulateContract({
+        address: ContractAddresses.LoanManager as `0x${string}`,
+        abi: LoanManagerJson.abi,
+        functionName: 'slashLoan',
+        args: [parseUnits(slashAmount, 6)], // Amount in USDC (6 decimals)
+        account: address
+      });
+      
+      const hash = await walletClient.writeContract(request);
+      await publicClient.waitForTransactionReceipt({ hash });
+      
+      showNotification(`Successfully slashed operator for ${slashAmount} USDC`, 'success');
+      
+      // Reset form
+      setSlashAmount('');
+      setSlashReason('');
+    } catch (error: any) {
+      console.error('Error slashing operator:', error);
+      showNotification(error.message || 'Failed to slash operator', 'error');
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -54,7 +98,16 @@ export default function CapAdminScreen() {
             </div>
           </div>
           
-          {/* Tabs - Removed the onboard tab */}
+          {/* Notification */}
+          {notification.show && (
+            <div className={`mb-6 p-4 rounded-lg ${
+              notification.type === 'error' ? 'bg-red-900 bg-opacity-50 text-red-200' : 'bg-green-900 bg-opacity-50 text-green-200'
+            }`}>
+              {notification.message}
+            </div>
+          )}
+          
+          {/* Tabs */}
           <div className="flex border-b border-gray-800 mb-8">
             <button 
               className={`px-6 py-3 font-medium ${activeTab === 'operators' ? 'text-[#C6D130] border-b-2 border-[#C6D130]' : 'text-gray-400'}`}
@@ -99,34 +152,31 @@ export default function CapAdminScreen() {
                     </tr>
                   </thead>
                   <tbody>
-                    {mockOperators.map(operator => (
-                      <tr key={operator.id} className="border-b border-gray-800">
-                        <td className="py-4 pr-4">#{operator.id}</td>
-                        <td className="py-4 pr-4">{operator.name}</td>
-                        <td className="py-4 pr-4">{operator.address}</td>
-                        <td className="py-4 pr-4">${operator.collateral}</td>
-                        <td className="py-4 pr-4">
-                          <span className={`px-2 py-1 rounded text-xs ${operator.status === 'Active' ? 'bg-green-900 text-green-300' : 'bg-yellow-900 text-yellow-300'}`}>
-                            {operator.status}
-                          </span>
-                        </td>
-                        <td className="py-4 pr-4">{operator.loans}</td>
-                        <td className="py-4">
-                          <button 
-                            onClick={() => {
-                              setActiveTab('slash');
-                              setSlashOperatorId(operator.id);
-                            }}
-                            className="text-[#C6D130] hover:underline mr-3"
-                          >
-                            Slash
-                          </button>
-                          <button className="text-gray-400 hover:text-white hover:underline">
-                            Details
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                    <tr className="border-b border-gray-800">
+                      <td className="py-4 pr-4">#1</td>
+                      <td className="py-4 pr-4">Current Operator</td>
+                      <td className="py-4 pr-4">{ContractAddresses.Operator.substring(0, 6)}...{ContractAddresses.Operator.substring(ContractAddresses.Operator.length - 4)}</td>
+                      <td className="py-4 pr-4">$500,000</td>
+                      <td className="py-4 pr-4">
+                        <span className="px-2 py-1 rounded text-xs bg-green-900 text-green-300">
+                          Active
+                        </span>
+                      </td>
+                      <td className="py-4 pr-4">1</td>
+                      <td className="py-4">
+                        <button 
+                          onClick={() => {
+                            setActiveTab('slash');
+                          }}
+                          className="text-[#C6D130] hover:underline mr-3"
+                        >
+                          Slash
+                        </button>
+                        <button className="text-gray-400 hover:text-white hover:underline">
+                          Details
+                        </button>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -202,80 +252,50 @@ export default function CapAdminScreen() {
               
               <form onSubmit={handleSlashOperator}>
                 <div className="mb-6">
-                  <label className="block text-gray-300 mb-2">Select Operator</label>
-                  <select
-                    value={slashOperatorId}
-                    onChange={(e) => setSlashOperatorId(e.target.value)}
-                    className="w-full p-4 bg-gray-900 rounded-lg text-white outline-none"
-                    required
-                  >
-                    <option value="">Select an operator</option>
-                    {mockOperators.map(operator => (
-                      <option key={operator.id} value={operator.id}>
-                        {operator.name} (#{operator.id}) - ${operator.collateral} collateral
-                      </option>
-                    ))}
-                  </select>
+                  <label className="block text-gray-300 mb-2">Operator</label>
+                  <div className="w-full p-4 bg-gray-900 rounded-lg text-white">
+                    Current Active Operator ({ContractAddresses.Operator.substring(0, 6)}...{ContractAddresses.Operator.substring(ContractAddresses.Operator.length - 4)})
+                  </div>
                 </div>
                 
-                {slashOperatorId && (
-                  <>
-                    <div className="mb-6">
-                      <label className="block text-gray-300 mb-2">Slash Amount (USDC)</label>
-                      <input
-                        type="number"
-                        value={slashAmount}
-                        onChange={(e) => setSlashAmount(e.target.value)}
-                        placeholder="Enter amount to slash"
-                        className="w-full p-4 bg-gray-900 rounded-lg text-white outline-none"
-                        min="1"
-                        required
-                      />
-                      <div className="flex justify-between mt-2">
-                        <p className="text-sm text-gray-400">
-                          Available collateral: $
-                          {mockOperators.find(op => op.id === slashOperatorId)?.collateral || '0'}
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const operator = mockOperators.find(op => op.id === slashOperatorId);
-                            if (operator) setSlashAmount(operator.collateral);
-                          }}
-                          className="text-sm text-[#C6D130] hover:underline"
-                        >
-                          Slash All
-                        </button>
-                      </div>
-                    </div>
-                    
-                    <div className="mb-6">
-                      <label className="block text-gray-300 mb-2">Reason for Slashing</label>
-                      <textarea
-                        value={slashReason}
-                        onChange={(e) => setSlashReason(e.target.value)}
-                        placeholder="Provide a reason for slashing this operator"
-                        className="w-full p-4 bg-gray-900 rounded-lg text-white outline-none min-h-[100px]"
-                        required
-                      />
-                    </div>
-                    
-                    <div className="mb-8 p-4 bg-red-900 bg-opacity-30 border border-red-800 rounded-lg">
-                      <h3 className="font-bold mb-2 text-red-400">Warning</h3>
-                      <p className="text-gray-300">
-                        Slashing an operator is a severe action that will reduce their collateral and may affect their status. 
-                        This action is recorded on-chain and cannot be reversed.
-                      </p>
-                    </div>
-                  </>
-                )}
+                <div className="mb-6">
+                  <label className="block text-gray-300 mb-2">Slash Amount (USDC)</label>
+                  <input
+                    type="number"
+                    value={slashAmount}
+                    onChange={(e) => setSlashAmount(e.target.value)}
+                    placeholder="Enter amount to slash"
+                    className="w-full p-4 bg-gray-900 rounded-lg text-white outline-none"
+                    min="1"
+                    required
+                  />
+                </div>
+                
+                <div className="mb-6">
+                  <label className="block text-gray-300 mb-2">Reason for Slashing</label>
+                  <textarea
+                    value={slashReason}
+                    onChange={(e) => setSlashReason(e.target.value)}
+                    placeholder="Provide a reason for slashing this operator"
+                    className="w-full p-4 bg-gray-900 rounded-lg text-white outline-none min-h-[100px]"
+                    required
+                  />
+                </div>
+                
+                <div className="mb-8 p-4 bg-red-900 bg-opacity-30 border border-red-800 rounded-lg">
+                  <h3 className="font-bold mb-2 text-red-400">Warning</h3>
+                  <p className="text-gray-300">
+                    Slashing an operator is a severe action that will reduce their collateral and may affect their status. 
+                    This action is recorded on-chain and cannot be reversed.
+                  </p>
+                </div>
                 
                 <button
                   type="submit"
                   className="w-full bg-red-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition duration-300"
-                  disabled={!slashOperatorId || !slashAmount || !slashReason}
+                  disabled={!slashAmount || !slashReason || isLoading}
                 >
-                  CONFIRM SLASH
+                  {isLoading ? 'PROCESSING...' : 'CONFIRM SLASH'}
                 </button>
               </form>
             </div>
