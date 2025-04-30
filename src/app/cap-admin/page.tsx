@@ -36,11 +36,6 @@ export default function CapAdminScreen() {
   const handleSlashOperator = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!slashAmount || !slashReason) {
-      showNotification('Please fill in all fields', 'error');
-      return;
-    }
-    
     if (!walletClient || !publicClient || !address) {
       showNotification('Wallet not connected properly', 'error');
       return;
@@ -48,23 +43,19 @@ export default function CapAdminScreen() {
     
     setIsLoading(true);
     try {
-      // Call slashLoan on LoanManager contract with the amount parameter
+      // Call slashLoan on LoanManager contract without amount parameter
       const { request } = await publicClient.simulateContract({
         address: ContractAddresses.LoanManager as `0x${string}`,
         abi: LoanManagerJson.abi,
         functionName: 'slashLoan',
-        args: [parseUnits(slashAmount, 6)], // Amount in USDC (6 decimals)
+        args: [], // No parameters needed
         account: address
       });
       
       const hash = await walletClient.writeContract(request);
       await publicClient.waitForTransactionReceipt({ hash });
       
-      showNotification(`Successfully slashed operator for ${slashAmount} USDC`, 'success');
-      
-      // Reset form
-      setSlashAmount('');
-      setSlashReason('');
+      showNotification(`Successfully slashed operator`, 'success');
     } catch (error: any) {
       console.error('Error slashing operator:', error);
       showNotification(error.message || 'Failed to slash operator', 'error');
@@ -258,30 +249,6 @@ export default function CapAdminScreen() {
                   </div>
                 </div>
                 
-                <div className="mb-6">
-                  <label className="block text-gray-300 mb-2">Slash Amount (USDC)</label>
-                  <input
-                    type="number"
-                    value={slashAmount}
-                    onChange={(e) => setSlashAmount(e.target.value)}
-                    placeholder="Enter amount to slash"
-                    className="w-full p-4 bg-gray-900 rounded-lg text-white outline-none"
-                    min="1"
-                    required
-                  />
-                </div>
-                
-                <div className="mb-6">
-                  <label className="block text-gray-300 mb-2">Reason for Slashing</label>
-                  <textarea
-                    value={slashReason}
-                    onChange={(e) => setSlashReason(e.target.value)}
-                    placeholder="Provide a reason for slashing this operator"
-                    className="w-full p-4 bg-gray-900 rounded-lg text-white outline-none min-h-[100px]"
-                    required
-                  />
-                </div>
-                
                 <div className="mb-8 p-4 bg-red-900 bg-opacity-30 border border-red-800 rounded-lg">
                   <h3 className="font-bold mb-2 text-red-400">Warning</h3>
                   <p className="text-gray-300">
@@ -293,7 +260,7 @@ export default function CapAdminScreen() {
                 <button
                   type="submit"
                   className="w-full bg-red-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition duration-300"
-                  disabled={!slashAmount || !slashReason || isLoading}
+                  disabled={isLoading}
                 >
                   {isLoading ? 'PROCESSING...' : 'CONFIRM SLASH'}
                 </button>
