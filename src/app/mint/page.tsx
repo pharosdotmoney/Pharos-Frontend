@@ -1,173 +1,199 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect } from 'react'
-import Image from 'next/image'
-// import { USDC_ABI , PUSDC_ABI} from '@/abi';
-import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
-import { parseUnits, formatUnits } from 'viem';
-import { getContractAddress } from '@/config';
-import USDCJson from '@/contracts/USDC.sol/USDC.json'
-import PUSDJson from '@/contracts/PUSD.sol/PUSD.json'
-import ContractAddresses from '@/deployed-addresses.json'
+import React, { useState, useEffect } from "react";
+import { useAccount, usePublicClient, useWalletClient } from "wagmi";
+import { parseUnits, formatUnits } from "viem";
+import USDCJson from "@/contracts/USDC.sol/USDC.json";
+import PUSDJson from "@/contracts/PUSD.sol/PUSD.json";
+import ContractAddresses from "@/deployed-addresses.json";
 
 const MintPage = () => {
-  const [amount, setAmount] = useState('')
-  const [usdcBalance, setUsdcBalance] = useState('0')
-  const [pusdBalance, setPusdBalance] = useState('0')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
-  
-  const { address, isConnected } = useAccount()
-  const publicClient = usePublicClient()
-  const { data: walletClient } = useWalletClient()
-  
+  const [amount, setAmount] = useState("");
+  const [usdcBalance, setUsdcBalance] = useState("0");
+  const [pusdBalance, setPusdBalance] = useState("0");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const { address, isConnected } = useAccount();
+  const publicClient = usePublicClient();
+  const { data: walletClient } = useWalletClient();
+
   // const chainId = 84532 // Base Sepolia
   // const usdcAddress = getContractAddress('USDC', chainId)
   // const pusdAddress = getContractAddress('PUSDC', chainId)
 
   // Fetch balances
   const fetchBalances = async () => {
-    if (!address || !publicClient) return
-    
+    if (!address || !publicClient) return;
+
     try {
       // Fetch USDC balance
       const usdcBalanceData = await publicClient.readContract({
         address: ContractAddresses.USDC as `0x${string}`,
         abi: USDCJson.abi,
-        functionName: 'balanceOf',
-        args: [address]
-      })
-      
-      setUsdcBalance(formatUnits(usdcBalanceData as bigint, 6)) // USDC has 6 decimals
-      
+        functionName: "balanceOf",
+        args: [address],
+      });
+
+      setUsdcBalance(formatUnits(usdcBalanceData as bigint, 18)); // USDC has 18 decimals
+
       // Fetch PUSD balance
       const pusdBalanceData = await publicClient.readContract({
         address: ContractAddresses.PUSD as `0x${string}`,
-            abi: PUSDJson.abi,
-        functionName: 'balanceOf',
-        args: [address]
-      })
-      
-      setPusdBalance(formatUnits(pusdBalanceData as bigint, 6)) // PUSD has 18 decimals
+        abi: PUSDJson.abi,
+        functionName: "balanceOf",
+        args: [address],
+      });
+
+      setPusdBalance(formatUnits(pusdBalanceData as bigint, 18)); // PUSD has 18 decimals
     } catch (err) {
-      console.error('Error fetching balances:', err)
+      console.error("Error fetching balances:", err);
     }
-  }
+  };
 
   // Fetch balances on mount and when address changes
   useEffect(() => {
     if (isConnected && address && publicClient) {
-      fetchBalances()
+      fetchBalances();
     }
-  }, [address, isConnected, publicClient])
+  }, [address, isConnected, publicClient]);
 
   // Handle input change
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
+    const value = e.target.value;
     // Only allow numbers and decimals
-    if (value === '' || /^\d*\.?\d*$/.test(value)) {
-      setAmount(value)
+    if (value === "" || /^\d*\.?\d*$/.test(value)) {
+      setAmount(value);
     }
-  }
+  };
 
   // Handle approve and mint
   const handleMint = async () => {
     if (!amount || parseFloat(amount) <= 0) {
-      setError('Please enter a valid amount')
-      return
+      setError("Please enter a valid amount");
+      return;
     }
-    
+
     if (!walletClient || !publicClient) {
-      setError('Wallet not connected properly')
-      return
+      setError("Wallet not connected properly");
+      return;
     }
-    
-    setLoading(true)
-    setError('')
-    setSuccess('')
-    
+
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
     try {
       // First approve USDC spending
-      const usdcAmount = parseUnits(amount, 6) // USDC has 6 decimals
-      
+      const usdcAmount = parseUnits(amount, 18); // USDC has 18 decimals
+
       // Check if we have enough USDC
       if (parseFloat(usdcBalance) < parseFloat(amount)) {
-        setError(`Insufficient USDC balance. You have ${usdcBalance} USDC.`)
-        setLoading(false)
-        return
+        setError(`Insufficient USDC balance. You have ${usdcBalance} USDC.`);
+        setLoading(false);
+        return;
       }
-      
+
       // Approve USDC
       const { request: approveRequest } = await publicClient.simulateContract({
         address: ContractAddresses.USDC as `0x${string}`,
         abi: USDCJson.abi,
-        functionName: 'approve',
+        functionName: "approve",
         args: [ContractAddresses.PUSD as `0x${string}`, usdcAmount],
-        account: address
-      })
-      
-      const approveHash = await walletClient.writeContract(approveRequest)
-      await publicClient.waitForTransactionReceipt({ hash: approveHash })
-      
+        account: address,
+      });
+
+      const approveHash = await walletClient.writeContract(approveRequest);
+      await publicClient.waitForTransactionReceipt({ hash: approveHash });
+
       // Now call depositAndMint on PUSD contract
       const { request: mintRequest } = await publicClient.simulateContract({
         address: ContractAddresses.PUSD as `0x${string}`,
         abi: PUSDJson.abi,
-        functionName: 'depositAndMint',
+        functionName: "depositAndMint",
         args: [usdcAmount],
-        account: address
-      })
-      
-      const mintHash = await walletClient.writeContract(mintRequest)
-      await publicClient.waitForTransactionReceipt({ hash: mintHash })
-      
+        account: address,
+      });
+
+      const mintHash = await walletClient.writeContract(mintRequest);
+      await publicClient.waitForTransactionReceipt({ hash: mintHash });
+
       // Update balances and reset form
-      fetchBalances()
-      setAmount('')
-      setSuccess(`Successfully minted PUSD!`)
-    } catch (err: any) {
-      console.error('Error minting PUSD:', err)
-      setError(err.message || 'Failed to mint PUSD. Please try again.')
+      fetchBalances();
+      setAmount("");
+      setSuccess(`Successfully minted PUSD!`);
+    } catch (err: unknown) {
+      console.error("Error minting PUSD:", err);
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Failed to mint PUSD. Please try again.";
+      setError(errorMessage);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-4xl font-bold mb-6 text-center font-mono" style={{ 
-          letterSpacing: '0.05em',
-          textShadow: '0.05em 0 0 rgba(255,0,0,0.75), -0.025em -0.05em 0 rgba(0,255,0,0.75), 0.025em 0.05em 0 rgba(0,0,255,0.75)',
-          fontFamily: 'monospace'
-        }}>
+        <h1
+          className="text-4xl font-bold mb-6 text-center font-mono"
+          style={{
+            letterSpacing: "0.05em",
+            textShadow:
+              "0.05em 0 0 rgba(255,0,0,0.75), -0.025em -0.05em 0 rgba(0,255,0,0.75), 0.025em 0.05em 0 rgba(0,0,255,0.75)",
+            fontFamily: "monospace",
+          }}
+        >
           MINT PUSD
         </h1>
-        
+
         {!isConnected ? (
-          <div className="bg-black border border-gray-800 p-6 rounded-lg shadow-lg mb-6 backdrop-blur-sm" 
-               style={{ backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)', backgroundSize: '10px 10px' }}>
+          <div
+            className="bg-black border border-gray-800 p-6 rounded-lg shadow-lg mb-6 backdrop-blur-sm"
+            style={{
+              backgroundImage:
+                "radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)",
+              backgroundSize: "10px 10px",
+            }}
+          >
             <p className="text-center text-gray-300">
               Please connect your wallet to mint PUSD
             </p>
           </div>
         ) : (
           <>
-            <div className="bg-black border border-gray-800 p-6 rounded-lg shadow-lg mb-6 backdrop-blur-sm" 
-                 style={{ backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)', backgroundSize: '10px 10px' }}>
+            <div
+              className="bg-black border border-gray-800 p-6 rounded-lg shadow-lg mb-6 backdrop-blur-sm"
+              style={{
+                backgroundImage:
+                  "radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)",
+                backgroundSize: "10px 10px",
+              }}
+            >
               <div className="mb-4">
                 <p className="text-gray-300 mb-2">
-                  Your USDC Balance: <span className="text-[#C6D130] font-bold">{usdcBalance} USDC</span>
+                  Your USDC Balance:{" "}
+                  <span className="text-[#C6D130] font-bold">
+                    {usdcBalance} USDC
+                  </span>
                 </p>
                 <p className="text-gray-300 mb-4">
-                  Your PUSD Balance: <span className="text-[#C6D130] font-bold">{pusdBalance} PUSD</span>
+                  Your PUSD Balance:{" "}
+                  <span className="text-[#C6D130] font-bold">
+                    {pusdBalance} PUSD
+                  </span>
                 </p>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div>
-                  <label htmlFor="amount" className="block text-sm font-medium text-[#C6D130] mb-1">
+                  <label
+                    htmlFor="amount"
+                    className="block text-sm font-medium text-[#C6D130] mb-1"
+                  >
                     Deposit
                   </label>
                   <div className="relative">
@@ -185,7 +211,7 @@ const MintPage = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-[#C6D130] mb-1">
                     Receive
@@ -193,7 +219,7 @@ const MintPage = () => {
                   <div className="relative">
                     <input
                       type="text"
-                      value={amount || '0.0'}
+                      value={amount || "0.0"}
                       readOnly
                       className="w-full px-3 py-2 bg-gray-800 bg-opacity-50 border border-gray-700 text-white rounded-md"
                     />
@@ -203,44 +229,43 @@ const MintPage = () => {
                   </div>
                 </div>
               </div>
-              
+
               <button
                 onClick={handleMint}
                 disabled={loading || !amount}
                 className={`w-full py-3 px-4 rounded-md text-white font-medium transition-colors ${
-                  loading ? 'opacity-70' : ''
+                  loading ? "opacity-70" : ""
                 } bg-black border border-[#C6D130] shadow-[0_0_15px_rgba(198,209,48,0.7)] hover:shadow-[0_0_20px_rgba(198,209,48,1)] hover:text-[#C6D130]`}
               >
-                {loading ? 'Processing...' : 'Mint PUSD'}
+                {loading ? "Processing..." : "Mint PUSD"}
               </button>
-              
+
               {error && (
-                <p className="mt-2 text-red-400 text-sm">
-                  Error: {error}
-                </p>
+                <p className="mt-2 text-red-400 text-sm">Error: {error}</p>
               )}
-              
+
               {success && (
-                <p className="mt-2 text-green-400 text-sm">
-                  {success}
-                </p>
+                <p className="mt-2 text-green-400 text-sm">{success}</p>
               )}
             </div>
-            
+
             <div className="bg-black border border-gray-800 p-4 rounded-lg">
-              <h2 className="text-lg font-semibold mb-2 text-[#C6D130]">About PUSD</h2>
+              <h2 className="text-lg font-semibold mb-2 text-[#C6D130]">
+                About PUSD
+              </h2>
               <p className="text-gray-300 mb-2">
                 PUSD is a yield-bearing stablecoin backed by USDC collateral.
               </p>
               <p className="text-gray-300">
-                When you mint PUSD, your USDC is deposited into the protocol and used to generate yield through secure lending markets.
+                When you mint PUSD, your USDC is deposited into the protocol and
+                used to generate yield through secure lending markets.
               </p>
             </div>
           </>
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default MintPage
+export default MintPage;
