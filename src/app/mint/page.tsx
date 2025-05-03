@@ -43,7 +43,7 @@ const MintPage = () => {
       
       // Fetch PUSD balance
       const pusdBalanceData = await publicClient.readContract({
-        address: ContractAddresses.PUSDC as `0x${string}`,
+        address: ContractAddresses.PUSD as `0x${string}`,
             abi: PUSDJson.abi,
         functionName: 'balanceOf',
         args: [address]
@@ -103,7 +103,7 @@ const MintPage = () => {
         address: ContractAddresses.USDC as `0x${string}`,
         abi: USDCJson.abi,
         functionName: 'approve',
-        args: [ContractAddresses.PUSDC as `0x${string}`, usdcAmount],
+        args: [ContractAddresses.PUSD as `0x${string}`, usdcAmount],
         account: address
       })
       
@@ -112,7 +112,7 @@ const MintPage = () => {
       
       // Now call depositAndMint on PUSD contract
       const { request: mintRequest } = await publicClient.simulateContract({
-        address: ContractAddresses.PUSDC as `0x${string}`,
+        address: ContractAddresses.PUSD as `0x${string}`,
         abi: PUSDJson.abi,
         functionName: 'depositAndMint',
         args: [usdcAmount],

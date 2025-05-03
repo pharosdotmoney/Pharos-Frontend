@@ -8,6 +8,7 @@ import LSTJson from '@/contracts/LST.sol/LST.json'
 import USDCJson from '@/contracts/USDC.sol/USDC.json'
 import LoanManagerJson from '@/contracts/LoanManager.sol/LoanManager.json'
 import ContractAddresses from '@/deployed-addresses.json'
+import EigenJson from '@/contracts/Eigen.sol/Eigen.json'
 
 
 
@@ -114,9 +115,18 @@ export default function OperatorScreen() {
       
       // Check if loanDetails has valid values before formatting
       if (loanDetails) {
+        // Get the delegated amount from the Eigen contract
+        const delegatedData = await publicClient.readContract({
+          address: ContractAddresses.Eigen as `0x${string}`,
+          abi: EigenJson.abi,
+          functionName: 'getDelegatedAmount',
+          args: [address]
+        });
+        
+        const delegatedAmount = formatUnits(delegatedData as bigint, 18);
+        
         // Format the collateral amount to a readable number
-        const collateralAmount = loanDetails[5] ? formatUnits(loanDetails[5], 18) : '0';
-        const formattedCollateralAmount = parseFloat(collateralAmount).toString();
+        const collateralAmount = delegatedAmount || '0';
         
         // Set the loan directly in the component state
         setLoanDetails({
@@ -125,7 +135,7 @@ export default function OperatorScreen() {
           startTime: loanDetails[2] ? Number(loanDetails[2]) : 0,
           dueTime: loanDetails[3] ? Number(loanDetails[3]) : 0,
           isRepaid: loanDetails[4] || false,
-          collateralAmount: formattedCollateralAmount,
+          collateralAmount: collateralAmount,
           loanedUSDCAmount: loanDetails[6] ? formatUnits(loanDetails[6], 6) : '0'
         });
         

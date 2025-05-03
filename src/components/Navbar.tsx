@@ -27,6 +27,9 @@ const Navbar = () => {
           <Link href="/restaking-screen" className="font-medium tracking-wide hover:text-[#C6D130] transition duration-300">
             RESTAKING
           </Link>
+          <Link href="/spusd" className="font-medium tracking-wide hover:text-[#C6D130] transition duration-300">
+            SPUSD
+          </Link>
           <Link href="/usdc" className="font-medium tracking-wide hover:text-[#C6D130] transition duration-300">
             USDC
           </Link>

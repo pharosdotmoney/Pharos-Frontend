@@ -5,6 +5,8 @@ import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 import { parseUnits, formatUnits } from 'viem';
 import LoanManagerJson from '@/contracts/LoanManager.sol/LoanManager.json';
 import ContractAddresses from '@/deployed-addresses.json';
+import LSTJson from '@/contracts/LST.sol/LST.json';
+import EigenJson from '@/contracts/Eigen.sol/Eigen.json';
 
 export default function CapAdminScreen() {
   const [activeTab, setActiveTab] = useState('operators')
@@ -13,6 +15,7 @@ export default function CapAdminScreen() {
   const [slashReason, setSlashReason] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [notification, setNotification] = useState({ show: false, message: '', type: '' })
+  const [operatorDelegation, setOperatorDelegation] = useState('0')
   
   // Add Wagmi hooks
   const { address } = useAccount();
@@ -63,6 +66,38 @@ export default function CapAdminScreen() {
       setIsLoading(false);
     }
   }
+
+  // Add this function to fetch the operator's delegated LST
+  const fetchOperatorDelegation = async () => {
+    if (!publicClient) return;
+    
+    try {
+      // Get the operator address from the contract addresses
+      const operatorAddress = ContractAddresses.Operator as `0x${string}`;
+      
+      // Fetch the actual delegated amount from the Eigen contract
+      const delegatedData = await publicClient.readContract({
+        address: ContractAddresses.Eigen as `0x${string}`,
+        abi: EigenJson.abi,
+        functionName: 'getDelegatedAmount',
+        args: [address]
+      });
+      
+      // Format the amount with 18 decimals (for LST)
+      setOperatorDelegation(formatUnits(delegatedData as bigint, 18));
+    } catch (err) {
+      console.error('Error fetching operator delegation:', err);
+      // If there's an error, we'll show 0 LST
+      setOperatorDelegation('0');
+    }
+  };
+
+  // Call this in useEffect
+  useEffect(() => {
+    if (publicClient) {
+      fetchOperatorDelegation();
+    }
+  }, [publicClient]);
 
   return (
     <div className="min-h-screen bg-black text-white pt-10 pb-20">
@@ -147,7 +182,7 @@ export default function CapAdminScreen() {
                       <td className="py-4 pr-4">#1</td>
                       <td className="py-4 pr-4">Current Operator</td>
                       <td className="py-4 pr-4">{ContractAddresses.Operator.substring(0, 6)}...{ContractAddresses.Operator.substring(ContractAddresses.Operator.length - 4)}</td>
-                      <td className="py-4 pr-4">$500,000</td>
+                      <td className="py-4 pr-4">{operatorDelegation} LST</td>
                       <td className="py-4 pr-4">
                         <span className="px-2 py-1 rounded text-xs bg-green-900 text-green-300">
                           Active
