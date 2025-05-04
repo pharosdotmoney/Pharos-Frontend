@@ -178,9 +178,10 @@ export default function CapAdminScreen() {
                     </tr>
                   </thead>
                   <tbody>
+                    {/* First Operator - ONDO */}
                     <tr className="border-b border-gray-800">
                       <td className="py-4 pr-4">#1</td>
-                      <td className="py-4 pr-4">Current Operator</td>
+                      <td className="py-4 pr-4">ONDO Finance</td>
                       <td className="py-4 pr-4">{ContractAddresses.Operator.substring(0, 6)}...{ContractAddresses.Operator.substring(ContractAddresses.Operator.length - 4)}</td>
                       <td className="py-4 pr-4">{operatorDelegation} LST</td>
                       <td className="py-4 pr-4">
@@ -191,13 +192,49 @@ export default function CapAdminScreen() {
                       <td className="py-4 pr-4">1</td>
                       <td className="py-4">
                         <button 
-                          onClick={() => {
-                            setActiveTab('slash');
-                          }}
+                          onClick={() => setActiveTab('slash')}
                           className="text-[#C6D130] hover:underline mr-3"
                         >
                           Slash
                         </button>
+                        <button className="text-gray-400 hover:text-white hover:underline">
+                          Details
+                        </button>
+                      </td>
+                    </tr>
+
+                    {/* Second Operator - Plume */}
+                    <tr className="border-b border-gray-800">
+                      <td className="py-4 pr-4">#2</td>
+                      <td className="py-4 pr-4">Plume</td>
+                      <td className="py-4 pr-4">0x3Bc8...9F2a</td>
+                      <td className="py-4 pr-4">0 LST</td>
+                      <td className="py-4 pr-4">
+                        <span className="px-2 py-1 rounded text-xs bg-gray-800 text-gray-400">
+                          Inactive
+                        </span>
+                      </td>
+                      <td className="py-4 pr-4">0</td>
+                      <td className="py-4">
+                        <button className="text-gray-400 hover:text-white hover:underline">
+                          Details
+                        </button>
+                      </td>
+                    </tr>
+
+                    {/* Third Operator - TrueFi */}
+                    <tr className="border-b border-gray-800">
+                      <td className="py-4 pr-4">#3</td>
+                      <td className="py-4 pr-4">TrueFi</td>
+                      <td className="py-4 pr-4">0x5Df1...4E3b</td>
+                      <td className="py-4 pr-4">0 LST</td>
+                      <td className="py-4 pr-4">
+                        <span className="px-2 py-1 rounded text-xs bg-gray-800 text-gray-400">
+                          Inactive
+                        </span>
+                      </td>
+                      <td className="py-4 pr-4">0</td>
+                      <td className="py-4">
                         <button className="text-gray-400 hover:text-white hover:underline">
                           Details
                         </button>
@@ -280,7 +317,7 @@ export default function CapAdminScreen() {
                 <div className="mb-6">
                   <label className="block text-gray-300 mb-2">Operator</label>
                   <div className="w-full p-4 bg-gray-900 rounded-lg text-white">
-                    Current Active Operator ({ContractAddresses.Operator.substring(0, 6)}...{ContractAddresses.Operator.substring(ContractAddresses.Operator.length - 4)})
+                   ONDO Finance ({ContractAddresses.Operator.substring(0, 6)}...{ContractAddresses.Operator.substring(ContractAddresses.Operator.length - 4)})
                   </div>
                 </div>
                 

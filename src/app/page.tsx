@@ -4,6 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import StablecoinAnimation from '@/components/StablecoinAnimation';
 import Link from 'next/link'
+import Image from 'next/image'
 
 const HomePage = () => {
   const router = useRouter();
@@ -14,13 +15,13 @@ const HomePage = () => {
     <div className="container mx-auto px-4 py-20">
       <div className="flex flex-col md:flex-row items-center justify-between">
         <div className="md:w-1/2 mb-10 md:mb-0">
-        <h1 className="text-6xl font-bold mb-4 font-mono" style={{ 
-          letterSpacing: '0.05em',
-          textShadow: '0.05em 0 0 rgba(255,0,0,0.75), -0.025em -0.05em 0 rgba(0,255,0,0.75), 0.025em 0.05em 0 rgba(0,0,255,0.75)',
-          fontFamily: 'monospace'
-        }}>
-       VERIFIABLE MONEY
-        </h1>
+          <h1 className="text-6xl font-bold mb-4 font-mono" style={{ 
+            letterSpacing: '0.05em',
+            textShadow: '0.05em 0 0 rgba(255,0,0,0.75), -0.025em -0.05em 0 rgba(0,255,0,0.75), 0.025em 0.05em 0 rgba(0,0,255,0.75)',
+            fontFamily: 'monospace'
+          }}>
+            VERIFIABLE MONEY
+          </h1>
           <p className="text-xl md:text-2xl mb-8 text-gray-300">
             Stablecoin protocol with credible financial guarantees
           </p>
@@ -34,6 +35,65 @@ const HomePage = () => {
         
         <div className="md:w-1/2 h-[500px]">
           <StablecoinAnimation />
+        </div>
+      </div>
+
+      {/* Flow Diagram - Full Width */}
+      <div className="w-full mt-20 bg-black p-8 rounded-lg border border-gray-800" style={{
+        backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)',
+        backgroundSize: '10px 10px'
+      }}>
+        <Image
+          src="/flow.png"
+          alt="Protocol Flow Diagram"
+          width={1200}
+          height={600}
+          className="w-full rounded-lg shadow-lg"
+          priority
+          style={{ 
+            filter: 'invert(1) hue-rotate(180deg) brightness(2) contrast(1.5)',
+            mixBlendMode: 'difference',
+            backgroundColor: 'transparent'
+          }}
+        />
+
+        {/* Diagram Explanation */}
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-6">
+            <h3 className="text-2xl font-bold text-[#C6D130]">Collateral Flow</h3>
+            <ul className="space-y-4 text-gray-300">
+              <li className="flex items-start">
+                <span className="text-[#C6D130] mr-2">1.</span>
+                <span>Users deposit LST tokens as collateral into the protocol</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-[#C6D130] mr-2">2.</span>
+                <span>LST tokens are delegated to verified operators for restaking</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-[#C6D130] mr-2">3.</span>
+                <span>Operators provide security across multiple networks</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="space-y-6">
+            <h3 className="text-2xl font-bold text-[#C6D130]">Stablecoin Flow</h3>
+            <ul className="space-y-4 text-gray-300">
+              <li className="flex items-start">
+                <span className="text-[#C6D130] mr-2">4.</span>
+                <span>Users receive PUSD stablecoins against their collateral</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-[#C6D130] mr-2">5.</span>
+                <span>PUSD can be deposited into sPUSD vault for yield generation</span>
+              </li>
+              <li className="flex items-start">
+                <span className="text-[#C6D130] mr-2">6.</span>
+                <span>Yield is generated from operator rewards and lending markets</span>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
