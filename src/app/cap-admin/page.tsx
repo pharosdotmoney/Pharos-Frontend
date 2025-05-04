@@ -14,6 +14,13 @@ interface NotificationType {
   type: 'error' | 'success';
 }
 
+// Add error interface
+interface ContractError {
+  message: string;
+  name?: string;
+  code?: string | number;
+}
+
 export default function CapAdminScreen() {
   const [activeTab, setActiveTab] = useState('operators')
   const [baseRate, setBaseRate] = useState('5.0')
@@ -45,7 +52,7 @@ export default function CapAdminScreen() {
     alert(`Base rate updated to ${baseRate}%`)
   }
   
-  // Update the slash operator function to call the contract
+  // Update the slash operator function with proper error typing
   const handleSlashOperator = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -56,12 +63,11 @@ export default function CapAdminScreen() {
     
     setIsLoading(true);
     try {
-      // Call slashLoan on LoanManager contract without amount parameter
       const { request } = await publicClient.simulateContract({
         address: ContractAddresses.LoanManager as `0x${string}`,
         abi: LoanManagerJson.abi,
         functionName: 'slashLoan',
-        args: [], // No parameters needed
+        args: [],
         account: address
       });
       
@@ -69,9 +75,10 @@ export default function CapAdminScreen() {
       await publicClient.waitForTransactionReceipt({ hash });
       
       showNotification(`Successfully slashed operator`, 'success');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error slashing operator:', error);
-      showNotification(error.message || 'Failed to slash operator', 'error');
+      const contractError = error as ContractError;
+      showNotification(contractError.message || 'Failed to slash operator', 'error');
     } finally {
       setIsLoading(false);
     }
