@@ -50,7 +50,6 @@ export default function CapAdminScreen() {
 
     setIsLoading(true);
     try {
-      // Call slashLoan on LoanManager contract without amount parameter
       const { request } = await publicClient.simulateContract({
         address: ContractAddresses.LoanManager as `0x${string}`,
         abi: LoanManagerJson.abi,
@@ -71,8 +70,8 @@ export default function CapAdminScreen() {
     }
   };
 
-  // Add this function to fetch the operator's delegated LST
-  const fetchOperatorDelegation = async () => {
+  // Wrap fetch function in useCallback
+  const fetchOperatorDelegation = useCallback(async () => {
     if (!publicClient) return;
 
     try {
@@ -94,14 +93,13 @@ export default function CapAdminScreen() {
       // If there's an error, we'll show 0 LST
       setOperatorDelegation("0");
     }
-  };
+  }, [publicClient, address]); // Add dependencies here
 
-  // Call this in useEffect
   useEffect(() => {
     if (publicClient) {
       fetchOperatorDelegation();
     }
-  }, [publicClient]);
+  }, [publicClient, fetchOperatorDelegation]); // Add fetchOperatorDelegation to dependencies
 
   return (
     <div className="min-h-screen bg-black text-white pt-10 pb-20">

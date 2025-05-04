@@ -79,16 +79,33 @@ export const supportedChains = {
   },
 };
 
-// Contract addresses
-export const contractAddresses = {
+// Update the interfaces
+interface BaseAddresses {
+  USDC: string;
+  LST: string;
+  PUSD: string;
+  sPUSD: string;
+  Operator: string;
+  Eigen: string;
+  LoanManager: string;
+}
 
+// Remove empty interfaces and use type aliases instead
+type HardhatAddresses = BaseAddresses;
+type PharosAddresses = BaseAddresses;
+
+export const contractAddresses: {
+  hardhat: HardhatAddresses;
+  pharos: PharosAddresses;
+} = {
   hardhat: {
     USDC: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
-    PUSDC: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
-    LST:'0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
-    Eigen:'0x0165878A594ca255338adfa4d48449f69242Eb8F',
-    Operator:'0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9',
-    LoanManager:'0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6',
+    PUSD: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0', // Changed from PUSDC to PUSD
+    LST: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
+    sPUSD: '0x0165878A594ca255338adfa4d48449f69242Eb8F',
+    Eigen: '0x0165878A594ca255338adfa4d48449f69242Eb8F',
+    Operator: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9',
+    LoanManager: '0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6',
   },
   pharos: {
     USDC: '0x8182BEF887361F3312D344e229160C389616b6F0',
@@ -101,20 +118,15 @@ export const contractAddresses = {
   }
 };
 
-// Function to get contract address based on network
+// Update the getContractAddress function to use BaseAddresses
 export const getContractAddress = (
-  contractName: keyof typeof contractAddresses.pharos,
+  contractName: keyof BaseAddresses,
   chainId: number
 ): string => {
   // Pharos Network
   if (chainId === supportedChains.pharos.id) {
     return contractAddresses.pharos[contractName];
   }
-  
-  // Base Sepolia
-//   if (chainId === supportedChains.baseSepolia.id) {
-//     return contractAddresses.baseSepolia[contractName];
-//   }
   
   // Hardhat
   if (chainId === supportedChains.hardhat.id) {
