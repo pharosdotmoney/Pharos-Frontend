@@ -7,6 +7,10 @@ PharosDotMoney: The First RWA-Covered Stablecoin Engine
 
 PharosDotMoney is redefining what it means to hold a stablecoin. In a space cluttered with unstable models and risky DeFi loops, Pharos offers a stablecoin backed by productive real-world activity — not inflated token emissions or unsustainable mechanics. At its core, Pharos mints stablecoins that are fully backed, yield-bearing, and secured by a decentralized network of Real World Asset (RWA) operators. This is the future of stable value — scalable, safe, and censorship-resistant.
 
+
+## Complete Guide
+ https://deepwiki.com/pharosdotmoney/Pharos-Frontend/1-overview
+
 ## Why Choose PharosDotMoney?
 
 ### ✅ Earn Yield Securely with Fully Collateralized Stablecoins
