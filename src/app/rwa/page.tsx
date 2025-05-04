@@ -1,25 +1,33 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useAccount } from 'wagmi';
-import { useRouter } from 'next/navigation';
+// import { useAccount } from 'wagmi';
+// import { useRouter } from 'next/navigation';
+
+interface Asset {
+  id: number;
+  name: string;
+  amount: string;
+  yield: string;
+  value: string;
+}
 
 const RWAPage = () => {
  
   
   // State for assets and yields
-  const [assets, setAssets] = useState([
+  const [assets, setAssets] = useState<Asset[]>([
     { id: 1, name: 'US Treasury Bond', amount: '10,000', yield: '4.2%', value: '10,250' },
     { id: 2, name: 'Corporate Bond ETF', amount: '5,000', yield: '5.8%', value: '5,120' },
     { id: 3, name: 'Real Estate Fund', amount: '15,000', yield: '7.1%', value: '15,600' },
   ]);
   
   // Restaking and loan data
-  const [restakingData, setRestakingData] = useState({
+  const restakingData = {
     totalRestaked: '15,000',
     loanTaken: '8,500',
     loanAvailable: '6,500'
-  });
+  };
   
   const [showAddAssetModal, setShowAddAssetModal] = useState(false);
   const [newAsset, setNewAsset] = useState({

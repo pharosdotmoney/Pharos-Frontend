@@ -5,17 +5,16 @@ import { useState, useEffect, useRef } from 'react';
 interface Particle {
   x: number;
   y: number;
-  vx: number;
-  vy: number;
-  radius: number;
+  size: number;
+  speedX: number;
+  speedY: number;
   color: string;
+  opacity: number;
 }
 
 const StablecoinAnimation = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const particlesRef = useRef<Particle[]>([]);
-  const animationFrameRef = useRef<number>(0);
-  const [particles, setParticles] = useState<any[]>([]);
+  const [particles, setParticles] = useState<Particle[]>([]);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [earthAngle, setEarthAngle] = useState(0);
   
@@ -64,7 +63,6 @@ const StablecoinAnimation = () => {
     if (!ctx) return;
     
     let animationFrameId: number;
-    let lastTime = 0;
     
     const animate = () => {
       const canvas = canvasRef.current;

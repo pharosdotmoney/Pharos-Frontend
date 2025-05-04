@@ -8,13 +8,23 @@ import ContractAddresses from '@/deployed-addresses.json';
 // import LSTJson from '@/contracts/LST.sol/LST.json';
 import EigenJson from '@/contracts/Eigen.sol/Eigen.json';
 
+interface NotificationType {
+  show: boolean;
+  message: string;
+  type: 'error' | 'success';
+}
+
 export default function CapAdminScreen() {
   const [activeTab, setActiveTab] = useState('operators')
   const [baseRate, setBaseRate] = useState('5.0')
   // const [slashAmount, setSlashAmount] = useState('')
   // const [slashReason, setSlashReason] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [notification, setNotification] = useState({ show: false, message: '', type: '' })
+  const [notification, setNotification] = useState<NotificationType>({ 
+    show: false, 
+    message: '', 
+    type: 'success' 
+  })
   const [operatorDelegation, setOperatorDelegation] = useState('0')
   
   // Add Wagmi hooks
