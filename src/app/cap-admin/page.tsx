@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
 import {  formatUnits } from 'viem';
 import LoanManagerJson from '@/contracts/LoanManager.sol/LoanManager.json';
@@ -39,11 +39,11 @@ export default function CapAdminScreen() {
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
   
-  // Show notification function
-  const showNotification = (message: string, type: string) => {
+  // Update notification function with proper typing
+  const showNotification = (message: string, type: 'error' | 'success') => {
     setNotification({ show: true, message, type });
     setTimeout(() => {
-      setNotification({ show: false, message: '', type: '' });
+      setNotification({ show: false, message: '', type: 'success' });
     }, 5000);
   };
   
@@ -52,7 +52,7 @@ export default function CapAdminScreen() {
     alert(`Base rate updated to ${baseRate}%`)
   }
   
-  // Update the slash operator function with proper error typing
+  // Update the slash operator function
   const handleSlashOperator = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -74,7 +74,7 @@ export default function CapAdminScreen() {
       const hash = await walletClient.writeContract(request);
       await publicClient.waitForTransactionReceipt({ hash });
       
-      showNotification(`Successfully slashed operator`, 'success');
+      showNotification('Successfully slashed operator', 'success');
     } catch (error: unknown) {
       console.error('Error slashing operator:', error);
       const contractError = error as ContractError;
@@ -84,15 +84,11 @@ export default function CapAdminScreen() {
     }
   }
 
-  // Add this function to fetch the operator's delegated LST
-  const fetchOperatorDelegation = async () => {
+  // Wrap fetch function in useCallback
+  const fetchOperatorDelegation = useCallback(async () => {
     if (!publicClient) return;
     
     try {
-      // Get the operator address from the contract addresses
-      // const operatorAddress = ContractAddresses.Operator as `0x${string}`;
-      
-      // Fetch the actual delegated amount from the Eigen contract
       const delegatedData = await publicClient.readContract({
         address: ContractAddresses.Eigen as `0x${string}`,
         abi: EigenJson.abi,
@@ -100,21 +96,18 @@ export default function CapAdminScreen() {
         args: [address]
       });
       
-      // Format the amount with 18 decimals (for LST)
       setOperatorDelegation(formatUnits(delegatedData as bigint, 18));
     } catch (err) {
       console.error('Error fetching operator delegation:', err);
-      // If there's an error, we'll show 0 LST
       setOperatorDelegation('0');
     }
-  };
+  }, [publicClient, address]); // Add dependencies here
 
-  // Call this in useEffect
   useEffect(() => {
     if (publicClient) {
       fetchOperatorDelegation();
     }
-  }, [publicClient]);
+  }, [publicClient, fetchOperatorDelegation]); // Add fetchOperatorDelegation to dependencies
 
   return (
     <div className="min-h-screen bg-black text-white pt-10 pb-20">
