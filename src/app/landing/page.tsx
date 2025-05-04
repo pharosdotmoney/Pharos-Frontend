@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import React from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import StablecoinAnimation from '@/components/StablecoinAnimation'
+import React from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import StablecoinAnimation from "@/components/StablecoinAnimation";
 
 const LandingPage = () => {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -14,39 +14,46 @@ const LandingPage = () => {
       <div className="container mx-auto px-4 py-20">
         <div className="flex flex-col md:flex-row items-center justify-between">
           <div className="md:w-1/2 mb-10 md:mb-0">
-          <h1 className="text-6xl font-bold mb-4 font-mono" style={{ 
-            letterSpacing: '0.05em',
-            textShadow: '0.05em 0 0 rgba(255,0,0,0.75), -0.025em -0.05em 0 rgba(0,255,0,0.75), 0.025em 0.05em 0 rgba(0,0,255,0.75)',
-            fontFamily: 'monospace'
-          }}>
-         VERIFIABLE MONEY
-          </h1>
+            <h1
+              className="text-6xl font-bold mb-4 font-mono"
+              style={{
+                letterSpacing: "0.05em",
+                textShadow:
+                  "0.05em 0 0 rgba(255,0,0,0.75), -0.025em -0.05em 0 rgba(0,255,0,0.75), 0.025em 0.05em 0 rgba(0,0,255,0.75)",
+                fontFamily: "monospace",
+              }}
+            >
+              VERIFIABLE MONEY
+            </h1>
             <p className="text-xl md:text-2xl mb-8 text-gray-300">
               Stablecoin protocol with credible financial guarantees
             </p>
-            <button 
-              onClick={() => router.push('/mint')}
+            <button
+              onClick={() => router.push("/mint")}
               className="px-8 py-3 bg-black text-[#C6D130] text-lg font-semibold border-2 border-[#C6D130] rounded-md hover:bg-[#C6D130] hover:text-black transition-colors shadow-[0_0_15px_rgba(198,209,48,0.7)] hover:shadow-[0_0_25px_rgba(198,209,48,1)]"
             >
               LAUNCH APP
             </button>
           </div>
-          
+
           <div className="md:w-1/2 h-[500px]">
             <StablecoinAnimation />
           </div>
         </div>
       </div>
 
-      {/* Why Choose CAP Section */}
       <div className="container mx-auto px-4 py-20 border-t border-gray-800">
         <div className="text-left mb-16">
-          <h2 className="text-4xl font-bold mb-4 font-mono" style={{ 
-            letterSpacing: '0.05em',
-            textShadow: '0.05em 0 0 rgba(255,0,0,0.75), -0.025em -0.05em 0 rgba(0,255,0,0.75), 0.025em 0.05em 0 rgba(0,0,255,0.75)',
-            fontFamily: 'monospace'
-          }}>
-            WHY CHOOSE CAP
+          <h2
+            className="text-4xl font-bold mb-4 font-mono"
+            style={{
+              letterSpacing: "0.05em",
+              textShadow:
+                "0.05em 0 0 rgba(255,0,0,0.75), -0.025em -0.05em 0 rgba(0,255,0,0.75), 0.025em 0.05em 0 rgba(0,0,255,0.75)",
+              fontFamily: "monospace",
+            }}
+          >
+            WHY CHOOSE Pharos Money
           </h2>
           <p className="text-xl text-gray-300 max-w-2xl">
             Earn yield safely while maintaining access to your funds.
@@ -55,11 +62,14 @@ const LandingPage = () => {
 
         <div className="grid md:grid-cols-3 gap-8">
           {/* Feature Box 1 */}
-          <div className="bg-black p-8 rounded-lg border border-gray-800 hover:border-gray-400 transition duration-300 flex flex-col justify-between min-h-[220px]" 
-               style={{ 
-                 backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)', 
-                 backgroundSize: '10px 10px' 
-               }}>
+          <div
+            className="bg-black p-8 rounded-lg border border-gray-800 hover:border-gray-400 transition duration-300 flex flex-col justify-between min-h-[220px]"
+            style={{
+              backgroundImage:
+                "radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)",
+              backgroundSize: "10px 10px",
+            }}
+          >
             <h3 className="text-xl font-bold mb-4">NON-CUSTODIAL</h3>
             <p className="text-gray-300">
               No party has access to unsecured user deposits
@@ -67,11 +77,14 @@ const LandingPage = () => {
           </div>
 
           {/* Feature Box 2 */}
-          <div className="bg-black p-8 rounded-lg border border-gray-800 hover:border-gray-400 transition duration-300 flex flex-col justify-between min-h-[220px]" 
-               style={{ 
-                 backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)', 
-                 backgroundSize: '10px 10px' 
-               }}>
+          <div
+            className="bg-black p-8 rounded-lg border border-gray-800 hover:border-gray-400 transition duration-300 flex flex-col justify-between min-h-[220px]"
+            style={{
+              backgroundImage:
+                "radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)",
+              backgroundSize: "10px 10px",
+            }}
+          >
             <h3 className="text-xl font-bold mb-4">PRIVATE CREDIT</h3>
             <p className="text-gray-300">
               Competitive yield generated by efficient markets
@@ -79,11 +92,14 @@ const LandingPage = () => {
           </div>
 
           {/* Feature Box 3 */}
-          <div className="bg-black p-8 rounded-lg border border-gray-800 hover:border-gray-400 transition duration-300 flex flex-col justify-between min-h-[220px]" 
-               style={{ 
-                 backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)', 
-                 backgroundSize: '10px 10px' 
-               }}>
+          <div
+            className="bg-black p-8 rounded-lg border border-gray-800 hover:border-gray-400 transition duration-300 flex flex-col justify-between min-h-[220px]"
+            style={{
+              backgroundImage:
+                "radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)",
+              backgroundSize: "10px 10px",
+            }}
+          >
             <h3 className="text-xl font-bold mb-4">FULLY COVERED YIELD</h3>
             <p className="text-gray-300">
               Shared security model underwrites counterparty activity
@@ -92,25 +108,31 @@ const LandingPage = () => {
         </div>
       </div>
 
-      {/* How CAP Works Section */}
       <div className="container mx-auto px-4 py-20 border-t border-gray-800">
         <div className="text-left mb-16">
-          <h2 className="text-4xl font-bold mb-4 font-mono" style={{ 
-            letterSpacing: '0.05em',
-            textShadow: '0.05em 0 0 rgba(255,0,0,0.75), -0.025em -0.05em 0 rgba(0,255,0,0.75), 0.025em 0.05em 0 rgba(0,0,255,0.75)',
-            fontFamily: 'monospace'
-          }}>
-            HOW CAP WORKS
+          <h2
+            className="text-4xl font-bold mb-4 font-mono"
+            style={{
+              letterSpacing: "0.05em",
+              textShadow:
+                "0.05em 0 0 rgba(255,0,0,0.75), -0.025em -0.05em 0 rgba(0,255,0,0.75), 0.025em 0.05em 0 rgba(0,0,255,0.75)",
+              fontFamily: "monospace",
+            }}
+          >
+            HOW IT WORKS
           </h2>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
           {/* Step 1 */}
-          <div className="bg-black p-8 rounded-lg border border-gray-800 hover:border-gray-400 transition duration-300 flex flex-col min-h-[220px]" 
-               style={{ 
-                 backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)', 
-                 backgroundSize: '10px 10px' 
-               }}>
+          <div
+            className="bg-black p-8 rounded-lg border border-gray-800 hover:border-gray-400 transition duration-300 flex flex-col min-h-[220px]"
+            style={{
+              backgroundImage:
+                "radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)",
+              backgroundSize: "10px 10px",
+            }}
+          >
             <div className="flex items-center mb-4">
               <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white text-black font-bold text-xl mr-3">
                 1
@@ -123,11 +145,14 @@ const LandingPage = () => {
           </div>
 
           {/* Step 2 */}
-          <div className="bg-black p-8 rounded-lg border border-gray-800 hover:border-gray-400 transition duration-300 flex flex-col min-h-[220px]" 
-               style={{ 
-                 backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)', 
-                 backgroundSize: '10px 10px' 
-               }}>
+          <div
+            className="bg-black p-8 rounded-lg border border-gray-800 hover:border-gray-400 transition duration-300 flex flex-col min-h-[220px]"
+            style={{
+              backgroundImage:
+                "radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)",
+              backgroundSize: "10px 10px",
+            }}
+          >
             <div className="flex items-center mb-4">
               <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white text-black font-bold text-xl mr-3">
                 2
@@ -140,11 +165,14 @@ const LandingPage = () => {
           </div>
 
           {/* Step 3 */}
-          <div className="bg-black p-8 rounded-lg border border-gray-800 hover:border-gray-400 transition duration-300 flex flex-col min-h-[220px]" 
-               style={{ 
-                 backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)', 
-                 backgroundSize: '10px 10px' 
-               }}>
+          <div
+            className="bg-black p-8 rounded-lg border border-gray-800 hover:border-gray-400 transition duration-300 flex flex-col min-h-[220px]"
+            style={{
+              backgroundImage:
+                "radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)",
+              backgroundSize: "10px 10px",
+            }}
+          >
             <div className="flex items-center mb-4">
               <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white text-black font-bold text-xl mr-3">
                 3
@@ -159,10 +187,13 @@ const LandingPage = () => {
       </div>
 
       {/* Footer Section */}
-      <footer className="mt-20 border-t border-gray-800" style={{
-        backgroundColor: '#C6D130',
-        boxShadow: 'inset 0 10px 30px -10px rgba(0,0,0,0.3)'
-      }}>
+      <footer
+        className="mt-20 border-t border-gray-800"
+        style={{
+          backgroundColor: "#C6D130",
+          boxShadow: "inset 0 10px 30px -10px rgba(0,0,0,0.3)",
+        }}
+      >
         <div className="container mx-auto px-4 py-12">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
             <div className="mb-6 md:mb-0">
@@ -170,33 +201,14 @@ const LandingPage = () => {
                 Stablecoin protocol with credible financial guarantees
               </p>
               <p className="text-sm text-gray-700">
-                cap © 2025 All rights reserved.
+                pharosdotmoney© 2025 All rights reserved.
               </p>
             </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-x-12 gap-y-4">
-              <Link href="/about" className="text-gray-800 hover:text-black font-medium transition duration-300">
-                WHAT IS CAP
-              </Link>
-              <Link href="/docs" className="text-gray-800 hover:text-black font-medium transition duration-300">
-                DOCUMENTATION
-              </Link>
-              <Link href="/knowledge" className="text-gray-800 hover:text-black font-medium transition duration-300">
-                KNOWLEDGE BASE
-              </Link>
-              <Link href="/ecosystem" className="text-gray-800 hover:text-black font-medium transition duration-300">
-                ECOSYSTEM
-              </Link>
-              <Link href="/media" className="text-gray-800 hover:text-black font-medium transition duration-300">
-                MEDIA KIT
-              </Link>
-            </div>
           </div>
-          
         </div>
       </footer>
     </div>
-  )
-}
+  );
+};
 
-export default LandingPage
+export default LandingPage;
