@@ -11,23 +11,22 @@ import {
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
-import {
- 
-  baseSepolia,
-  hardhat,
-} from 'wagmi/chains';
+
 import {
   QueryClientProvider,
   QueryClient,
 } from "@tanstack/react-query";
+import { pharosChain } from '@/definechain';
 
 const inter = Inter({ subsets: ['latin'] });
 
-// Configure RainbowKit
+
+
+// Configure RainbowKit with only Pharos chain
 const config = getDefaultConfig({
   appName: 'Pharos Money',
-  projectId: 'YOUR_PROJECT_ID', // Replace with your actual project ID
-  chains: [baseSepolia , hardhat],
+  projectId: 'YOUR_PROJECT_ID',
+  chains: [pharosChain],
   ssr: true,
 });
 

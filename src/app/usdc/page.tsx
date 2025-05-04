@@ -43,6 +43,8 @@ const USDCMint = () => {
     }
   }, [address, isConnected, publicClient]);
 
+ 
+
   // Handle input change
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
