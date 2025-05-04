@@ -2,8 +2,19 @@
 
 import { useState, useEffect, useRef } from 'react';
 
-export default function StablecoinAnimation() {
+interface Particle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  radius: number;
+  color: string;
+}
+
+const StablecoinAnimation = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const particlesRef = useRef<Particle[]>([]);
+  const animationFrameRef = useRef<number>(0);
   const [particles, setParticles] = useState<any[]>([]);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [earthAngle, setEarthAngle] = useState(0);
@@ -55,10 +66,13 @@ export default function StablecoinAnimation() {
     let animationFrameId: number;
     let lastTime = 0;
     
-    const animate = (timestamp: number) => {
-      const deltaTime = timestamp - lastTime;
-      lastTime = timestamp;
-      
+    const animate = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
       // Update earth angle
       setEarthAngle(prev => (prev + 0.005) % (Math.PI * 2));
       
@@ -164,7 +178,7 @@ export default function StablecoinAnimation() {
       ctx.fillText('$', centerX, centerY);
       
       // Draw pulsating glow
-      const time = timestamp / 1000;
+      const time = Date.now() / 1000;
       const glowSize = 90 + Math.sin(time * 2) * 10;
       const gradient = ctx.createRadialGradient(
         centerX, centerY, 60,
@@ -317,4 +331,6 @@ export default function StablecoinAnimation() {
       />
     </div>
   );
-} 
+};
+
+export default StablecoinAnimation; 

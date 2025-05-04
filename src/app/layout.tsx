@@ -3,7 +3,7 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
 import Navbar from '@/components/Navbar';
-import { supportedChains, rpcConfig } from '@/config';
+import { rpcConfig } from '@/config';
 
 // Rainbow Kit imports
 import '@rainbow-me/rainbowkit/styles.css';
@@ -12,9 +12,7 @@ import {
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
-import {
-  hardhat,
-} from 'wagmi/chains';
+import { hardhat } from 'wagmi/chains';
 import {
   QueryClientProvider,
   QueryClient,
@@ -26,7 +24,7 @@ const inter = Inter({ subsets: ['latin'] });
 const config = getDefaultConfig({
   appName: 'Pharos Money',
   projectId: 'YOUR_PROJECT_ID',
-  chains: [ hardhat],
+  chains: [hardhat],
   ssr: true,
   pollingInterval: rpcConfig.pollingInterval,
 });
