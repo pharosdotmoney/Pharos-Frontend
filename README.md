@@ -11,6 +11,9 @@ PharosDotMoney is redefining what it means to hold a stablecoin. In a space clut
 ## Complete Guide
  https://deepwiki.com/pharosdotmoney/Pharos-Frontend/1-overview
 
+#Deployment Link - https://new-pharos-frontend.vercel.app/
+Our project is deployed on Pharos but for deployment link it works well with hardhat beacause rpc for pharos is down ( cors error ) 
+
 ## Why Choose PharosDotMoney?
 
 ### ✅ Earn Yield Securely with Fully Collateralized Stablecoins
