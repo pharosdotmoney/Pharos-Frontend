@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAccount } from 'wagmi';
 import { useRouter } from 'next/navigation';
 
 const RWAPage = () => {
-  const router = useRouter();
-  const { address, isConnected } = useAccount();
+  // const router = useRouter();
+  // const { address, isConnected } = useAccount();
   
   // State for assets and yields
   const [assets, setAssets] = useState([

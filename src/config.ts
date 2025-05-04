@@ -1,7 +1,7 @@
 // Network configurations
-import { hardhat, baseSepolia } from "viem/chains";
+import { hardhat } from "viem/chains";
 
-import { createPublicClient, http, defineChain } from "viem";
+import { createPublicClient, http } from "viem";
 
 
 
@@ -112,9 +112,9 @@ export const getContractAddress = (
   }
   
   // Base Sepolia
-  if (chainId === supportedChains.baseSepolia.id) {
-    return contractAddresses.baseSepolia[contractName];
-  }
+//   if (chainId === supportedChains.baseSepolia.id) {
+//     return contractAddresses.baseSepolia[contractName];
+//   }
   
   // Hardhat
   if (chainId === supportedChains.hardhat.id) {

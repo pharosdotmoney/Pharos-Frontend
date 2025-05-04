@@ -2,17 +2,17 @@
 
 import React, { useState, useEffect } from 'react'
 import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
-import { parseUnits, formatUnits } from 'viem';
+import {  formatUnits } from 'viem';
 import LoanManagerJson from '@/contracts/LoanManager.sol/LoanManager.json';
 import ContractAddresses from '@/deployed-addresses.json';
-import LSTJson from '@/contracts/LST.sol/LST.json';
+// import LSTJson from '@/contracts/LST.sol/LST.json';
 import EigenJson from '@/contracts/Eigen.sol/Eigen.json';
 
 export default function CapAdminScreen() {
   const [activeTab, setActiveTab] = useState('operators')
   const [baseRate, setBaseRate] = useState('5.0')
-  const [slashAmount, setSlashAmount] = useState('')
-  const [slashReason, setSlashReason] = useState('')
+  // const [slashAmount, setSlashAmount] = useState('')
+  // const [slashReason, setSlashReason] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [notification, setNotification] = useState({ show: false, message: '', type: '' })
   const [operatorDelegation, setOperatorDelegation] = useState('0')
@@ -73,7 +73,7 @@ export default function CapAdminScreen() {
     
     try {
       // Get the operator address from the contract addresses
-      const operatorAddress = ContractAddresses.Operator as `0x${string}`;
+      // const operatorAddress = ContractAddresses.Operator as `0x${string}`;
       
       // Fetch the actual delegated amount from the Eigen contract
       const delegatedData = await publicClient.readContract({

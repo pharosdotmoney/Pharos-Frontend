@@ -1,4 +1,4 @@
-import { defineChain } from 'viem'
+// import { defineChain } from 'viem'
 
 // Define Pharos chain
 export const pharosChain = {
