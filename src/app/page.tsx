@@ -238,7 +238,12 @@ const HomePage = () => {
             <Link href="/about" className="text-xs text-gray-800 hover:text-black font-medium transition duration-300">
               WHAT IS PHAROSDOTMONEY
             </Link>
-            <Link href="/docs" className="text-xs text-gray-800 hover:text-black font-medium transition duration-300">
+            <Link 
+              href="https://deepwiki.com/pharosdotmoney/Pharos-Frontend/1-overview" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-xs text-gray-800 hover:text-black font-medium transition duration-300"
+            >
               DOCUMENTATION
             </Link>
             <Link href="/knowledge" className="text-xs text-gray-800 hover:text-black font-medium transition duration-300">

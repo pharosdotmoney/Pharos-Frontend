@@ -3,6 +3,7 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
 import Navbar from '@/components/Navbar';
+import { supportedChains, rpcConfig } from '@/config';
 
 // Rainbow Kit imports
 import '@rainbow-me/rainbowkit/styles.css';
@@ -11,23 +12,23 @@ import {
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
-
+import {
+  hardhat,
+} from 'wagmi/chains';
 import {
   QueryClientProvider,
   QueryClient,
 } from "@tanstack/react-query";
-import { pharosChain } from '@/definechain';
 
 const inter = Inter({ subsets: ['latin'] });
 
-
-
-// Configure RainbowKit with only Pharos chain
+// Configure RainbowKit with our custom Pharos chain
 const config = getDefaultConfig({
   appName: 'Pharos Money',
   projectId: 'YOUR_PROJECT_ID',
-  chains: [pharosChain],
+  chains: [ hardhat],
   ssr: true,
+  pollingInterval: rpcConfig.pollingInterval,
 });
 
 // Create a client
